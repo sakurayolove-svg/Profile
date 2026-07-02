@@ -20,13 +20,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const isImage = file.type.startsWith('image/');
-        const isPdf = file.type === 'application/pdf';
-
         resolve({
           id: crypto.randomUUID(),
           name: file.name,
-          type: isImage ? 'image' : isPdf ? 'pdf' : 'other',
+          type: file.type.startsWith('image/') ? 'image' : file.type === 'application/pdf' ? 'pdf' : 'other',
           size: file.size,
           data: reader.result as string,
           mimeType: file.type,
@@ -39,87 +36,46 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
   const handleFiles = async (files: globalThis.FileList | null) => {
     if (!files) return;
-    const processedFiles = await Promise.all(
-      Array.from(files).map(processFile)
-    );
-    onUpload(processedFiles);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    handleFiles(e.dataTransfer.files);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
+    onUpload(await Promise.all(Array.from(files).map(processFile)));
   };
 
   return (
     <div className="space-y-3">
       <div
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        className={`
-          border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
-          transition-all duration-200
-          ${isDragging 
-            ? 'border-primary bg-blue-50' 
-            : 'border-gray-300 hover:border-gray-400 bg-gray-50'
-          }
-        `}
+        onDrop={e => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
+        onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        style={{
+          border: `2px dashed ${isDragging ? '#224b8d' : '#ddd'}`,
+          borderRadius: 4,
+          padding: '1.5em',
+          textAlign: 'center',
+          background: isDragging ? '#f0f4fa' : '#fafafa',
+          cursor: 'pointer',
+        }}
       >
-        <input
-          type="file"
-          multiple
-          accept="image/*,application/pdf"
-          onChange={(e) => handleFiles(e.target.files)}
-          className="hidden"
-          id={inputId}
-        />
-        <label htmlFor={inputId} className="cursor-pointer block">
-          <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-600">
-            拖拽文件到此处，或 <span className="text-primary underline">点击上传</span>
-          </p>
-          <p className="text-xs text-gray-400 mt-1">支持图片和 PDF</p>
+        <input type="file" multiple accept="image/*,application/pdf" id={inputId} onChange={e => handleFiles(e.target.files)} style={{ display: 'none' }} />
+        <label htmlFor={inputId} style={{ cursor: 'pointer', display: 'block' }}>
+          <Upload size={32} style={{ margin: '0 auto 0.5em', color: '#7a8288' }} />
+          <p style={{ fontSize: '0.9em', color: '#494e52' }}>拖拽文件到此处，或 <span style={{ color: '#224b8d', textDecoration: 'underline' }}>点击上传</span></p>
         </label>
       </div>
 
       {existingFiles.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {existingFiles.map(file => (
-            <div key={file.id} className="relative group">
+            <div key={file.id} style={{ position: 'relative' }}>
               {file.type === 'image' ? (
-                <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                  <img 
-                    src={file.data} 
-                    alt={file.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <img src={file.data} alt={file.name} style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 3 }} />
               ) : (
-                <div className="aspect-square rounded-lg bg-red-50 flex flex-col items-center justify-center p-3">
-                  <FileText className="w-10 h-10 text-red-500 mb-2" />
-                  <p className="text-xs text-center text-gray-600 truncate w-full">
-                    {file.name}
-                  </p>
+                <div style={{ aspectRatio: '1', background: '#f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: 3 }}>
+                  <FileText size={24} style={{ color: '#c0392b' }} />
+                  <span style={{ fontSize: '0.7em', textAlign: 'center', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.name}</span>
                 </div>
               )}
               {onDelete && (
-                <button
-                  onClick={() => onDelete(file.id)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full 
-                           flex items-center justify-center opacity-0 group-hover:opacity-100 
-                           transition-opacity shadow-lg"
-                >
-                  <X className="w-3 h-3" />
+                <button onClick={() => onDelete(file.id)} style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', background: '#c0392b', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <X size={12} />
                 </button>
               )}
             </div>
