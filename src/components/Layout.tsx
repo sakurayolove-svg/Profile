@@ -2,20 +2,32 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   User, FolderGit, BookOpen, Coffee, Menu, X, 
-  Download, Upload, Settings 
+  Download, Upload, Settings, Plus
 } from 'lucide-react';
 import { db } from '@/stores/db';
+import { PageMeta } from '@/types';
+import { PageManager } from './PageManager';
 
-const navItems = [
-  { path: '/', label: '简介', icon: User },
-  { path: '/projects', label: '项目', icon: FolderGit },
-  { path: '/knowledge', label: '知识', icon: BookOpen },
-  { path: '/life', label: '生活', icon: Coffee },
-];
+const iconMap: Record<string, React.ElementType> = {
+  User,
+  FolderGit,
+  BookOpen,
+  Coffee,
+};
 
-export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+function getIcon(iconName: string) {
+  return iconMap[iconName] || FolderGit;
+}
+
+interface LayoutProps {
+  children: React.ReactNode;
+  pages: PageMeta[];
+}
+
+export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showPageManager, setShowPageManager] = useState(false);
   const location = useLocation();
 
   const handleExport = async () => {
@@ -42,10 +54,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
   };
 
+  const navItems = [
+    { path: '/', label: '简介', icon: User },
+    ...pages.map(p => ({ path: `/${p.id}`, label: p.title, icon: getIcon(p.icon) })),
+  ];
+
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-4">
+      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             <Link to="/" className="text-xl font-bold text-gray-900">
               我的网站
@@ -115,6 +132,17 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   className="hidden"
                 />
               </label>
+              <button
+                onClick={() => {
+                  setShowPageManager(true);
+                  setShowSettings(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 
+                         hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                管理页面
+              </button>
             </div>
           </div>
         )}
@@ -147,9 +175,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         {children}
       </main>
+
+      {showPageManager && (
+        <PageManager onClose={() => setShowPageManager(false)} />
+      )}
     </div>
   );
 };

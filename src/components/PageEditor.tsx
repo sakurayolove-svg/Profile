@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Plus, Check, X } from 'lucide-react';
-import { PageItem, PageType, PAGE_CONFIG } from '@/types';
+import { PageItem, PageMeta } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
 import { EditableCard } from './EditableCard';
 import { SortableList } from './SortableList';
 
 interface PageEditorProps {
-  pageType: PageType;
+  pageType: string;
+  pageMeta: PageMeta;
 }
 
-export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
+export const PageEditor: React.FC<PageEditorProps> = ({ pageType, pageMeta }) => {
   const { pageData, loading, addItem, updateItem, deleteItem, reorderItems, savePage } = usePageData(pageType);
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -17,8 +18,6 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editPageTitle, setEditPageTitle] = useState('');
   const [editPageDesc, setEditPageDesc] = useState('');
-
-  const config = PAGE_CONFIG[pageType];
 
   const handleAddItem = () => {
     if (!newTitle.trim()) return;
@@ -51,8 +50,8 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
 
   const startEditPageInfo = () => {
     if (!pageData) return;
-    setEditPageTitle(pageData.title || config.title);
-    setEditPageDesc(pageData.description || config.description);
+    setEditPageTitle(pageData.title || pageMeta.title);
+    setEditPageDesc(pageData.description || pageMeta.description);
     setIsEditingTitle(true);
   };
 
@@ -108,10 +107,10 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
             className="cursor-pointer group"
           >
             <h1 className="text-2xl font-bold text-gray-900 group-hover:text-primary transition-colors">
-              {pageData?.title || config.title}
+              {pageData?.title || pageMeta.title}
             </h1>
             <p className="text-gray-500 mt-1">
-              {pageData?.description || config.description}
+              {pageData?.description || pageMeta.description}
             </p>
             <p className="text-xs text-gray-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
               点击编辑页面信息
