@@ -7,6 +7,7 @@ export function usePageData(pageType: PageType) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     db.init().then(() => {
       db.getPage(pageType).then(data => {
         setPageData(data);

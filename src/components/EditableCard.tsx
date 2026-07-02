@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Save, X, Edit3, FileText } from 'lucide-react';
+import { Trash2, Save, X, Edit3 } from 'lucide-react';
 import { PageItem, FileItem } from '@/types';
 import { FileUploader } from './FileUploader';
 import { ImageViewer } from './ImageViewer';
@@ -50,6 +50,7 @@ export const EditableCard: React.FC<EditableCardProps> = ({
 
   const imageFiles = item.files.filter(f => f.type === 'image');
   const pdfFiles = item.files.filter(f => f.type === 'pdf');
+  const firstImage = imageFiles[0];
 
   if (isEditing) {
     return (
@@ -104,79 +105,69 @@ export const EditableCard: React.FC<EditableCardProps> = ({
     <>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 
                     hover:shadow-md transition-shadow group">
-        <div className="flex items-start justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+        <div className="flex gap-5">
+          {firstImage && (
+            <button
+              onClick={() => {
+                setViewingImageIndex(0);
+                setViewingImage(true);
+              }}
+              className="shrink-0 w-32 h-24 sm:w-40 sm:h-28 rounded-lg overflow-hidden bg-gray-100 
+                       hover:opacity-90 transition-opacity"
+            >
+              <img 
+                src={firstImage.data} 
+                alt={firstImage.name}
+                className="w-full h-full object-cover"
+              />
+            </button>
+          )}
 
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg"
-            >
-              <Edit3 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onDelete(item.id)}
-              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onDelete(item.id)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {item.content && (
+              <p className="mt-2 text-gray-600 whitespace-pre-wrap line-clamp-4">{item.content}</p>
+            )}
+
+            {item.files.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {imageFiles.length > 1 && (
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    {imageFiles.length} 张图片
+                  </span>
+                )}
+                {pdfFiles.length > 0 && (
+                  <button
+                    onClick={() => setViewingPdf(pdfFiles[0])}
+                    className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100"
+                  >
+                    {pdfFiles.length} 个 PDF
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
-
-        {item.content && (
-          <p className="mt-3 text-gray-600 whitespace-pre-wrap">{item.content}</p>
-        )}
-
-        {/* 文件预览 */}
-        {item.files.length > 0 && (
-          <div className="mt-4 space-y-3">
-            {/* 图片网格 */}
-            {imageFiles.length > 0 && (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                {imageFiles.map((file, index) => (
-                  <button
-                    key={file.id}
-                    onClick={() => {
-                      setViewingImageIndex(index);
-                      setViewingImage(true);
-                    }}
-                    className="aspect-square rounded-lg overflow-hidden bg-gray-100 
-                             hover:opacity-90 transition-opacity"
-                  >
-                    <img 
-                      src={file.data} 
-                      alt={file.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* PDF 列表 */}
-            {pdfFiles.length > 0 && (
-              <div className="space-y-2">
-                {pdfFiles.map(file => (
-                  <button
-                    key={file.id}
-                    onClick={() => setViewingPdf(file)}
-                    className="w-full flex items-center gap-3 p-3 bg-red-50 rounded-lg 
-                             hover:bg-red-100 transition-colors text-left"
-                  >
-                    <FileText className="w-5 h-5 text-red-500 shrink-0" />
-                    <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                    <span className="text-xs text-gray-400 ml-auto shrink-0">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* 图片查看器 */}
       {viewingImage && (
         <ImageViewer 
           files={item.files} 
@@ -185,7 +176,6 @@ export const EditableCard: React.FC<EditableCardProps> = ({
         />
       )}
 
-      {/* PDF 查看器 */}
       {viewingPdf && (
         <PDFViewer 
           pdfData={viewingPdf.data}

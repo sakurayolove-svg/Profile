@@ -1,7 +1,7 @@
-import { PageData, FileItem, PageType } from '@/types';
+import { PageData, FileItem, PageType, PageMeta, ProfileData } from '@/types';
 
 const DB_NAME = 'PersonalWebsiteDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 class Database {
   private db: IDBDatabase | null = null;
@@ -27,6 +27,14 @@ class Database {
         if (!db.objectStoreNames.contains('files')) {
           const fileStore = db.createObjectStore('files', { keyPath: 'id' });
           fileStore.createIndex('itemId', 'itemId', { unique: false });
+        }
+
+        if (!db.objectStoreNames.contains('pages_meta')) {
+          db.createObjectStore('pages_meta', { keyPath: 'id' });
+        }
+
+        if (!db.objectStoreNames.contains('profile')) {
+          db.createObjectStore('profile', { keyPath: 'id' });
         }
       };
     });
@@ -63,6 +71,76 @@ class Database {
     return new Promise((resolve, reject) => {
       const store = this.getStore('pages', 'readwrite');
       const request = store.put({ id: type, type, data });
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async deletePage(type: PageType): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const store = this.getStore('pages', 'readwrite');
+      const request = store.delete(type);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async listPages(): Promise<PageMeta[]> {
+    return new Promise((resolve, reject) => {
+      const store = this.getStore('pages_meta');
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const result = request.result as { id: string; data: PageMeta }[];
+        resolve(result.map(r => r.data).sort((a, b) => a.order - b.order));
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async savePageMeta(meta: PageMeta): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const store = this.getStore('pages_meta', 'readwrite');
+      const request = store.put({ id: meta.id, data: meta });
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async deletePageMeta(id: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const store = this.getStore('pages_meta', 'readwrite');
+      const request = store.delete(id);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getProfile(): Promise<ProfileData> {
+    return new Promise((resolve, reject) => {
+      const store = this.getStore('profile');
+      const request = store.get('main');
+      request.onsuccess = () => {
+        if (request.result) {
+          resolve(request.result.data);
+        } else {
+          resolve({
+            name: '',
+            bio: '',
+            email: '',
+            location: '',
+            avatar: '',
+            socials: [],
+          });
+        }
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async saveProfile(data: ProfileData): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const store = this.getStore('profile', 'readwrite');
+      const request = store.put({ id: 'main', data });
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
@@ -110,19 +188,38 @@ class Database {
 
   async exportAll(): Promise<string> {
     const pages: Record<string, PageData> = {};
-    const allTypes: PageType[] = ['home', 'projects', 'knowledge', 'life'];
+    const pageMetas = await this.listPages();
+    const profile = await this.getProfile();
 
-    for (const type of allTypes) {
-      pages[type] = await this.getPage(type);
+    pages['home'] = await this.getPage('home');
+    for (const meta of pageMetas) {
+      pages[meta.id] = await this.getPage(meta.id);
     }
 
-    return JSON.stringify(pages, null, 2);
+    return JSON.stringify({ pages, pageMetas, profile }, null, 2);
   }
 
   async importAll(jsonStr: string): Promise<void> {
-    const data = JSON.parse(jsonStr) as Record<string, PageData>;
-    for (const [type, pageData] of Object.entries(data)) {
-      await this.savePage(type as PageType, pageData);
+    const data = JSON.parse(jsonStr) as {
+      pages?: Record<string, PageData>;
+      pageMetas?: PageMeta[];
+      profile?: ProfileData;
+    };
+
+    if (data.pages) {
+      for (const [type, pageData] of Object.entries(data.pages)) {
+        await this.savePage(type as PageType, pageData);
+      }
+    }
+
+    if (data.pageMetas) {
+      for (const meta of data.pageMetas) {
+        await this.savePageMeta(meta);
+      }
+    }
+
+    if (data.profile) {
+      await this.saveProfile(data.profile);
     }
   }
 }
