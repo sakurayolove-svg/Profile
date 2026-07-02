@@ -4,7 +4,30 @@
 
 @layer base {
   body {
-    @apply antialiased;
+    @apply antialiased text-text bg-background;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    line-height: 1.5;
+  }
+
+  a {
+    @apply text-primary;
+  }
+
+  a:hover {
+    @apply underline;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-gray-900;
+    line-height: 1.2;
+  }
+
+  h2 {
+    @apply text-xl pb-2 border-b border-gray-200 mb-4;
+  }
+
+  h3 {
+    @apply text-base;
   }
 }
 
@@ -23,4 +46,22 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400;
+}
+
+@layer components {
+  .paper-box {
+    @apply flex gap-5 p-0 bg-white rounded-none shadow-soft border border-border overflow-hidden;
+  }
+
+  .paper-box-image {
+    @apply shrink-0 w-40 h-28 bg-gray-100 overflow-hidden;
+  }
+
+  .paper-box-image img {
+    @apply w-full h-full object-cover;
+  }
+
+  .paper-box-text {
+    @apply flex-1 py-3 pr-4;
+  }
 }

@@ -48,6 +48,8 @@ export interface ProfileData {
   location: string;
   avatar: string;
   socials: SocialLink[];
+  siteTitle: string;
+  aboutTitle: string;
 }
 
 export interface SocialLink {

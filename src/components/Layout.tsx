@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   User, FolderGit, BookOpen, Coffee, Menu, X, 
   Download, Upload, Settings, Plus
 } from 'lucide-react';
 import { db } from '@/stores/db';
-import { PageMeta } from '@/types';
+import { PageMeta, ProfileData } from '@/types';
 import { PageManager } from './PageManager';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -24,11 +24,29 @@ interface LayoutProps {
   pages: PageMeta[];
 }
 
+const defaultProfile: ProfileData = {
+  name: '',
+  bio: '',
+  email: '',
+  location: '',
+  avatar: '',
+  socials: [],
+  siteTitle: '我的网站',
+  aboutTitle: '关于我',
+};
+
 export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPageManager, setShowPageManager] = useState(false);
+  const [profile, setProfile] = useState<ProfileData>(defaultProfile);
   const location = useLocation();
+
+  useEffect(() => {
+    db.init().then(() => {
+      db.getProfile().then(setProfile);
+    });
+  }, []);
 
   const handleExport = async () => {
     const data = await db.exportAll();
@@ -55,17 +73,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
   };
 
   const navItems = [
-    { path: '/', label: '简介', icon: User },
+    { path: '/', label: 'Homepage', icon: User },
     ...pages.map(p => ({ path: `/${p.id}`, label: p.title, icon: getIcon(p.icon) })),
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
+    <div className="min-h-screen bg-white">
+      <nav className="sticky top-0 z-40 bg-white border-b border-border">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
-            <Link to="/" className="text-xl font-bold text-gray-900">
-              我的网站
+            <Link to="/" className="text-lg font-bold text-gray-900 hover:no-underline">
+              {profile.siteTitle || '我的网站'}
             </Link>
 
             <div className="hidden md:flex items-center gap-1">
@@ -76,11 +94,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
-                              transition-colors
+                    className={`flex items-center gap-2 px-3 py-2 text-sm font-medium
+                              transition-colors hover:no-underline
                               ${isActive 
-                                ? 'bg-primary/10 text-primary' 
-                                : 'text-gray-600 hover:bg-gray-100'
+                                ? 'text-primary' 
+                                : 'text-text hover:text-primary'
                               }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -93,14 +111,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-text hover:bg-gray-100 rounded transition-colors"
               >
                 <Settings className="w-5 h-5" />
               </button>
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+                className="md:hidden p-2 text-text hover:bg-gray-100 rounded"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -109,20 +127,19 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
         </div>
 
         {showSettings && (
-          <div className="absolute right-4 top-14 w-64 bg-white rounded-xl shadow-lg 
-                        border border-gray-200 p-4 z-50">
-            <h3 className="font-semibold text-gray-900 mb-3">数据管理</h3>
-            <div className="space-y-2">
+          <div className="absolute right-4 top-12 w-56 bg-white rounded shadow-lg 
+                        border border-gray-200 p-3 z-50 text-sm">
+            <div className="space-y-1">
               <button
                 onClick={handleExport}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 
-                         hover:bg-gray-50 rounded-lg transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-text 
+                         hover:bg-gray-50 rounded transition-colors"
               >
                 <Download className="w-4 h-4" />
                 导出备份
               </button>
-              <label className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 
-                              hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
+              <label className="w-full flex items-center gap-2 px-3 py-2 text-text 
+                              hover:bg-gray-50 rounded transition-colors cursor-pointer">
                 <Upload className="w-4 h-4" />
                 导入备份
                 <input
@@ -137,8 +154,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
                   setShowPageManager(true);
                   setShowSettings(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 
-                         hover:bg-gray-50 rounded-lg transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-text 
+                         hover:bg-gray-50 rounded transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 管理页面
@@ -149,7 +166,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
       </nav>
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-200">
+        <div className="md:hidden bg-white border-b border-border">
           <div className="px-4 py-2 space-y-1">
             {navItems.map(item => {
               const Icon = item.icon;
@@ -159,11 +176,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
-                            transition-colors
+                  className={`flex items-center gap-3 px-4 py-3 text-sm font-medium
+                            transition-colors hover:no-underline
                             ${isActive 
-                              ? 'bg-primary/10 text-primary' 
-                              : 'text-gray-600 hover:bg-gray-50'
+                              ? 'text-primary' 
+                              : 'text-text hover:text-primary'
                             }`}
                 >
                   <Icon className="w-5 h-5" />

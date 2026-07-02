@@ -9,6 +9,8 @@ const defaultProfile: ProfileData = {
   location: '',
   avatar: '',
   socials: [],
+  siteTitle: '我的网站',
+  aboutTitle: '关于我',
 };
 
 export function useProfile() {

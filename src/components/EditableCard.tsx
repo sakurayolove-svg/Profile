@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Save, X, Edit3 } from 'lucide-react';
+import { Trash2, Save, X, Edit3, Globe } from 'lucide-react';
 import { PageItem, FileItem } from '@/types';
 import { FileUploader } from './FileUploader';
 import { ImageViewer } from './ImageViewer';
@@ -54,25 +54,23 @@ export const EditableCard: React.FC<EditableCardProps> = ({
 
   if (isEditing) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-            placeholder="标题"
-            className="flex-1 text-lg font-semibold border-b-2 border-transparent 
-                     focus:border-primary focus:outline-none bg-transparent"
-          />
-        </div>
+      <div className="bg-white border border-border p-5 space-y-4">
+        <input
+          type="text"
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
+          placeholder="标题"
+          className="w-full text-lg font-bold border-b border-gray-300 
+                   focus:border-primary focus:outline-none py-1 bg-transparent"
+        />
 
         <textarea
           value={editContent}
           onChange={(e) => setEditContent(e.target.value)}
           placeholder="内容描述..."
           rows={4}
-          className="w-full resize-none border rounded-lg p-3 focus:border-primary 
-                   focus:outline-none text-gray-700"
+          className="w-full resize-none border border-gray-300 rounded p-3 focus:border-primary 
+                   focus:outline-none text-text"
         />
 
         <FileUploader 
@@ -84,15 +82,15 @@ export const EditableCard: React.FC<EditableCardProps> = ({
         <div className="flex justify-end gap-2">
           <button
             onClick={handleCancel}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg 
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded 
                      flex items-center gap-1 transition-colors"
           >
             <X className="w-4 h-4" /> 取消
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-primary text-white rounded-lg 
-                     flex items-center gap-1 hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded 
+                     flex items-center gap-1 hover:bg-blue-800 transition-colors"
           >
             <Save className="w-4 h-4" /> 保存
           </button>
@@ -103,68 +101,69 @@ export const EditableCard: React.FC<EditableCardProps> = ({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 
-                    hover:shadow-md transition-shadow group">
-        <div className="flex gap-5">
-          {firstImage && (
+      <div className="bg-white border border-border p-0 hover:shadow-soft transition-shadow group paper-box">
+        <div className="paper-box-image">
+          {firstImage ? (
             <button
               onClick={() => {
                 setViewingImageIndex(0);
                 setViewingImage(true);
               }}
-              className="shrink-0 w-32 h-24 sm:w-40 sm:h-28 rounded-lg overflow-hidden bg-gray-100 
-                       hover:opacity-90 transition-opacity"
+              className="w-full h-full"
             >
-              <img 
-                src={firstImage.data} 
-                alt={firstImage.name}
-                className="w-full h-full object-cover"
-              />
+              <img src={firstImage.data} alt={firstImage.name} />
             </button>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <Globe className="w-8 h-8" />
+            </div>
+          )}
+        </div>
+
+        <div className="paper-box-text">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-base font-bold text-gray-900">{item.title}</h3>
+
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="p-2 text-gray-400 hover:text-primary hover:bg-gray-100 rounded"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onDelete(item.id)}
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {item.content && (
+            <p className="mt-1 text-text text-sm whitespace-pre-wrap">{item.content}</p>
           )}
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {item.files.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {imageFiles.length > 1 && (
                 <button
-                  onClick={() => setIsEditing(true)}
-                  className="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg"
+                  onClick={() => setViewingImage(true)}
+                  className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded hover:bg-gray-200"
                 >
-                  <Edit3 className="w-4 h-4" />
+                  {imageFiles.length} 张图片
                 </button>
+              )}
+              {pdfFiles.length > 0 && (
                 <button
-                  onClick={() => onDelete(item.id)}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                  onClick={() => setViewingPdf(pdfFiles[0])}
+                  className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {pdfFiles.length} 个 PDF
                 </button>
-              </div>
+              )}
             </div>
-
-            {item.content && (
-              <p className="mt-2 text-gray-600 whitespace-pre-wrap line-clamp-4">{item.content}</p>
-            )}
-
-            {item.files.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {imageFiles.length > 1 && (
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    {imageFiles.length} 张图片
-                  </span>
-                )}
-                {pdfFiles.length > 0 && (
-                  <button
-                    onClick={() => setViewingPdf(pdfFiles[0])}
-                    className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100"
-                  >
-                    {pdfFiles.length} 个 PDF
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
