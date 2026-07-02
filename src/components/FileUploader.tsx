@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { Upload, X, FileText } from 'lucide-react';
 import { FileItem } from '@/types';
 
@@ -14,6 +14,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   onDelete 
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const inputId = useId();
 
   const processFile = async (file: globalThis.File): Promise<FileItem> => {
     return new Promise((resolve) => {
@@ -80,9 +81,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           accept="image/*,application/pdf"
           onChange={(e) => handleFiles(e.target.files)}
           className="hidden"
-          id="file-upload"
+          id={inputId}
         />
-        <label htmlFor="file-upload" className="cursor-pointer block">
+        <label htmlFor={inputId} className="cursor-pointer block">
           <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
           <p className="text-sm text-gray-600">
             拖拽文件到此处，或 <span className="text-primary underline">点击上传</span>

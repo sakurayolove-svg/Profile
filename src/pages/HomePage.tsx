@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, MapPin, Edit3, Check, X, Plus, Trash2 } from 'lucide-react';
-import { PageItem } from '@/types';
+import { FileItem, PageItem } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
 import { FileUploader } from '@/components/FileUploader';
 import { ImageViewer } from '@/components/ImageViewer';
@@ -106,7 +106,7 @@ export const HomePage: React.FC = () => {
     setIsAdding(false);
   };
 
-  const handleAvatarUpload = (files: any[]) => {
+  const handleAvatarUpload = (files: FileItem[]) => {
     if (files.length > 0) {
       setProfileAvatar(files[0].data);
     }
