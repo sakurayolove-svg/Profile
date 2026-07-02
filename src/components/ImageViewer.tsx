@@ -33,7 +33,6 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
-      {/* 关闭按钮 */}
       <button
         onClick={onClose}
         className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 
@@ -42,7 +41,6 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
         <X className="w-5 h-5" />
       </button>
 
-      {/* 图片 */}
       <div className="relative max-w-[90vw] max-h-[85vh]">
         <img
           src={currentImage.data}
@@ -52,7 +50,6 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
         />
       </div>
 
-      {/* 控制栏 */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 
                     bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
         <button onClick={handlePrev} className="text-white hover:text-gray-300">

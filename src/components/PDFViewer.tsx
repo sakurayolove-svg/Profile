@@ -2,11 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// 设置 pdf.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PDFViewerProps {
-  pdfData: string; // base64 data URL
+  pdfData: string;
   fileName: string;
   onClose: () => void;
 }
@@ -72,7 +71,6 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData, fileName, onClose
 
   return (
     <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
-      {/* 顶部工具栏 */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-900">
         <div className="flex items-center gap-4">
           <h3 className="text-white font-medium truncate max-w-md">{fileName}</h3>
@@ -118,7 +116,6 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData, fileName, onClose
         </div>
       </div>
 
-      {/* PDF 内容 */}
       <div className="flex-1 overflow-auto flex items-center justify-center p-4">
         {loading ? (
           <div className="text-white">加载中...</div>
@@ -127,7 +124,6 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData, fileName, onClose
         )}
       </div>
 
-      {/* 底部翻页 */}
       <div className="flex items-center justify-center gap-4 px-4 py-3 bg-gray-900">
         <button
           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}

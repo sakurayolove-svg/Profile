@@ -13,7 +13,7 @@ export interface FileItem {
   name: string;
   type: 'image' | 'pdf' | 'other';
   size: number;
-  data: string; // base64 or blob url
+  data: string;
   mimeType: string;
   createdAt: number;
 }

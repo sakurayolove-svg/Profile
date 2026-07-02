@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Upload, X, FileText } from 'lucide-react';
 import { FileItem } from '@/types';
 
 interface FileUploaderProps {
@@ -36,32 +36,31 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     });
   };
 
-  const handleFiles = useCallback(async (files: globalThis.FileList | null) => {
+  const handleFiles = async (files: globalThis.FileList | null) => {
     if (!files) return;
     const processedFiles = await Promise.all(
       Array.from(files).map(processFile)
     );
     onUpload(processedFiles);
-  }, [onUpload]);
+  };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     handleFiles(e.dataTransfer.files);
-  }, [handleFiles]);
+  };
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
-  }, []);
+  };
 
-  const handleDragLeave = useCallback(() => {
+  const handleDragLeave = () => {
     setIsDragging(false);
-  }, []);
+  };
 
   return (
     <div className="space-y-3">
-      {/* 上传区域 */}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -92,7 +91,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </label>
       </div>
 
-      {/* 已上传文件列表 */}
       {existingFiles.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {existingFiles.map(file => (

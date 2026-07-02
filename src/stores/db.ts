@@ -38,7 +38,6 @@ class Database {
     return transaction.objectStore(storeName);
   }
 
-  // 页面数据操作
   async getPage(type: PageType): Promise<PageData> {
     return new Promise((resolve, reject) => {
       const store = this.getStore('pages');
@@ -48,7 +47,6 @@ class Database {
         if (request.result) {
           resolve(request.result.data);
         } else {
-          // 返回默认空页面
           resolve({
             id: type,
             title: '',
@@ -70,7 +68,6 @@ class Database {
     });
   }
 
-  // 文件操作
   async saveFile(file: FileItem, itemId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const store = this.getStore('files', 'readwrite');
@@ -111,7 +108,6 @@ class Database {
     });
   }
 
-  // 导出所有数据
   async exportAll(): Promise<string> {
     const pages: Record<string, PageData> = {};
     const allTypes: PageType[] = ['home', 'projects', 'knowledge', 'life'];
@@ -123,7 +119,6 @@ class Database {
     return JSON.stringify(pages, null, 2);
   }
 
-  // 导入数据
   async importAll(jsonStr: string): Promise<void> {
     const data = JSON.parse(jsonStr) as Record<string, PageData>;
     for (const [type, pageData] of Object.entries(data)) {

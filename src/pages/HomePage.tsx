@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, MapPin, Link as LinkIcon, Edit3, Check, X, Plus, Trash2 } from 'lucide-react';
+import { Mail, MapPin, Edit3, Check, X, Plus, Trash2 } from 'lucide-react';
 import { PageItem } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
 import { FileUploader } from '@/components/FileUploader';
@@ -7,17 +7,15 @@ import { ImageViewer } from '@/components/ImageViewer';
 import { SortableList } from '@/components/SortableList';
 
 export const HomePage: React.FC = () => {
-  const { pageData, loading, addItem, updateItem, deleteItem, reorderItems, savePage } = usePageData('home');
+  const { pageData, loading, addItem, updateItem, deleteItem, reorderItems } = usePageData('home');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [viewingImage, setViewingImage] = useState(false);
 
-  // 编辑状态
   const [profileName, setProfileName] = useState('');
   const [profileBio, setProfileBio] = useState('');
   const [profileEmail, setProfileEmail] = useState('');
   const [profileLocation, setProfileLocation] = useState('');
-  const [profileLinks, setProfileLinks] = useState<string[]>([]);
   const [profileAvatar, setProfileAvatar] = useState('');
 
   const [newTitle, setNewTitle] = useState('');
@@ -31,55 +29,58 @@ export const HomePage: React.FC = () => {
     );
   }
 
-  // 从第一个条目中提取个人信息（如果没有则使用默认值）
   const profile = pageData?.items.find(i => i.title === '__profile__');
   const contentItems = pageData?.items.filter(i => i.title !== '__profile__') || [];
 
+  const parseProfile = () => {
+    if (!profile) return { name: '', bio: '', email: '', location: '', avatar: '' };
+    const parts = profile.content.split('\n');
+    return {
+      name: parts[0] || '',
+      bio: parts[1] || '',
+      email: parts[2] || '',
+      location: parts[3] || '',
+      avatar: profile.files[0]?.data || '',
+    };
+  };
+
+  const p = parseProfile();
+
   const startEditProfile = () => {
-    if (profile) {
-      const parts = profile.content.split('\n');
-      setProfileName(parts[0] || '');
-      setProfileBio(parts[1] || '');
-      setProfileEmail(parts[2] || '');
-      setProfileLocation(parts[3] || '');
-      setProfileLinks(parts.slice(4).filter(l => l.startsWith('http')));
-      setProfileAvatar(profile.files[0]?.data || '');
-    }
+    setProfileName(p.name);
+    setProfileBio(p.bio);
+    setProfileEmail(p.email);
+    setProfileLocation(p.location);
+    setProfileAvatar(p.avatar);
     setIsEditingProfile(true);
   };
 
   const saveProfile = () => {
-    const content = [profileName, profileBio, profileEmail, profileLocation, ...profileLinks]
+    const content = [profileName, profileBio, profileEmail, profileLocation]
       .filter(Boolean).join('\n');
+
+    const avatarFile = profileAvatar ? {
+      id: 'avatar',
+      name: 'avatar',
+      type: 'image' as const,
+      size: 0,
+      data: profileAvatar,
+      mimeType: 'image/*',
+      createdAt: Date.now(),
+    } : undefined;
 
     if (profile) {
       updateItem(profile.id, {
         title: '__profile__',
         content,
-        files: profileAvatar ? [{ 
-          id: 'avatar', 
-          name: 'avatar', 
-          type: 'image', 
-          size: 0, 
-          data: profileAvatar, 
-          mimeType: 'image/*',
-          createdAt: Date.now()
-        }] : [],
+        files: avatarFile ? [avatarFile] : [],
       });
     } else {
       addItem({
         id: crypto.randomUUID(),
         title: '__profile__',
         content,
-        files: profileAvatar ? [{ 
-          id: 'avatar', 
-          name: 'avatar', 
-          type: 'image', 
-          size: 0, 
-          data: profileAvatar, 
-          mimeType: 'image/*',
-          createdAt: Date.now()
-        }] : [],
+        files: avatarFile ? [avatarFile] : [],
         order: -1,
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -105,14 +106,6 @@ export const HomePage: React.FC = () => {
     setIsAdding(false);
   };
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-    const items = Array.from(contentItems);
-    const [reordered] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reordered);
-    reorderItems(items.map((item, idx) => ({ ...item, order: idx })));
-  };
-
   const handleAvatarUpload = (files: any[]) => {
     if (files.length > 0) {
       setProfileAvatar(files[0].data);
@@ -121,7 +114,6 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* 个人资料卡片 */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         {isEditingProfile ? (
           <div className="space-y-6">
@@ -132,9 +124,9 @@ export const HomePage: React.FC = () => {
                     <img src={profileAvatar} alt="avatar" className="w-24 h-24 rounded-full object-cover" />
                     <button 
                       onClick={() => setProfileAvatar('')}
-                      className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full"
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
                     >
-                      <X className="w-3 h-3 m-auto" />
+                      <X className="w-3 h-3" />
                     </button>
                   </div>
                 ) : (
@@ -186,30 +178,30 @@ export const HomePage: React.FC = () => {
             <div 
               className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-500 
                        flex items-center justify-center text-white text-3xl font-bold shrink-0 cursor-pointer"
-              onClick={() => profile?.files[0] && setViewingImage(true)}
+              onClick={() => p.avatar && setViewingImage(true)}
             >
-              {profile?.files[0] ? (
-                <img src={profile.files[0].data} alt="" className="w-24 h-24 rounded-full object-cover" />
+              {p.avatar ? (
+                <img src={p.avatar} alt="" className="w-24 h-24 rounded-full object-cover" />
               ) : (
-                profileName?.[0] || pageData?.title?.[0] || '我'
+                p.name?.[0] || pageData?.title?.[0] || '我'
               )}
             </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900">
-                {profileName || pageData?.title || '你的名字'}
+                {p.name || pageData?.title || '你的名字'}
               </h1>
               <p className="text-gray-500 mt-1">
-                {profileBio || pageData?.description || '介绍一下自己...'}
+                {p.bio || pageData?.description || '介绍一下自己...'}
               </p>
               <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-500">
-                {profileEmail && (
+                {p.email && (
                   <span className="flex items-center gap-1">
-                    <Mail className="w-4 h-4" /> {profileEmail}
+                    <Mail className="w-4 h-4" /> {p.email}
                   </span>
                 )}
-                {profileLocation && (
+                {p.location && (
                   <span className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" /> {profileLocation}
+                    <MapPin className="w-4 h-4" /> {p.location}
                   </span>
                 )}
               </div>
@@ -224,7 +216,6 @@ export const HomePage: React.FC = () => {
         )}
       </div>
 
-      {/* 内容区块 */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">详细内容</h2>
@@ -299,7 +290,6 @@ export const HomePage: React.FC = () => {
         )}
       </div>
 
-      {/* 图片查看器 */}
       {viewingImage && profile?.files[0] && (
         <ImageViewer files={profile.files} onClose={() => setViewingImage(false)} />
       )}

@@ -44,16 +44,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   return (
     <div className="min-h-screen bg-background">
-      {/* 顶部导航 */}
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
-            {/* Logo */}
             <Link to="/" className="text-xl font-bold text-gray-900">
               我的网站
             </Link>
 
-            {/* 桌面导航 */}
             <div className="hidden md:flex items-center gap-1">
               {navItems.map(item => {
                 const Icon = item.icon;
@@ -76,7 +73,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               })}
             </div>
 
-            {/* 设置按钮 */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowSettings(!showSettings)}
@@ -85,7 +81,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <Settings className="w-5 h-5" />
               </button>
 
-              {/* 移动端菜单按钮 */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
@@ -96,7 +91,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         </div>
 
-        {/* 设置面板 */}
         {showSettings && (
           <div className="absolute right-4 top-14 w-64 bg-white rounded-xl shadow-lg 
                         border border-gray-200 p-4 z-50">
@@ -126,7 +120,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         )}
       </nav>
 
-      {/* 移动端导航 */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-gray-200">
           <div className="px-4 py-2 space-y-1">
@@ -154,7 +147,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       )}
 
-      {/* 主内容 */}
       <main className="max-w-5xl mx-auto px-4 py-8">
         {children}
       </main>

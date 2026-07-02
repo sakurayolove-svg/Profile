@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Plus, Check, X } from 'lucide-react';
-import { SortableList } from './SortableList';
 import { PageItem, PageType, PAGE_CONFIG } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
 import { EditableCard } from './EditableCard';
+import { SortableList } from './SortableList';
 
 interface PageEditorProps {
   pageType: PageType;
@@ -39,22 +39,6 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
     setIsAdding(false);
   };
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination || !pageData) return;
-
-    const items = Array.from(pageData.items);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    // 更新 order
-    const updatedItems = items.map((item, index) => ({
-      ...item,
-      order: index,
-    }));
-
-    reorderItems(updatedItems);
-  };
-
   const handleSavePageInfo = () => {
     if (!pageData) return;
     savePage({
@@ -82,7 +66,6 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
 
   return (
     <div className="space-y-6">
-      {/* 页面标题区域 */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         {isEditingTitle ? (
           <div className="space-y-4">
@@ -137,7 +120,6 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
         )}
       </div>
 
-      {/* 添加新条目 */}
       {!isAdding ? (
         <button
           onClick={() => setIsAdding(true)}
@@ -191,16 +173,18 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType }) => {
         </div>
       )}
 
-      {/* 条目列表（可拖拽排序） */}
       <SortableList
         items={pageData?.items || []}
         onReorder={(items) => reorderItems(items.map((item, idx) => ({ ...item, order: idx })))}
         renderItem={(item) => (
-          <EditableCard item={item} onUpdate={updateItem} onDelete={deleteItem} />
+          <EditableCard
+            item={item}
+            onUpdate={updateItem}
+            onDelete={deleteItem}
+          />
         )}
       />
 
-      {/* 空状态 */}
       {pageData?.items.length === 0 && !isAdding && (
         <div className="text-center py-16 text-gray-400">
           <p>还没有内容，点击上方按钮添加第一条记录</p>
