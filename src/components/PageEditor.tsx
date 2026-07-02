@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Check, X } from 'lucide-react';
-import { PageItem, PageMeta } from '@/types';
+import { Plus, Edit3, Trash2, Globe } from 'lucide-react';
+import { PageMeta } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
-import { EditableCard } from './EditableCard';
 import { SortableList } from './SortableList';
 
 interface PageEditorProps {
@@ -12,17 +11,23 @@ interface PageEditorProps {
 
 export const PageEditor: React.FC<PageEditorProps> = ({ pageType, pageMeta }) => {
   const { pageData, loading, addItem, updateItem, deleteItem, reorderItems, savePage } = usePageData(pageType);
-  const [isAdding, setIsAdding] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editPageTitle, setEditPageTitle] = useState('');
-  const [editPageDesc, setEditPageDesc] = useState('');
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleForm, setTitleForm] = useState({ title: '', description: '' });
 
-  const handleAddItem = () => {
+  if (loading) return <div style={{ textAlign: 'center', padding: '4em' }}>Loading...</div>;
+
+  const saveTitle = () => {
+    if (!pageData) return;
+    savePage({ ...pageData, title: titleForm.title, description: titleForm.description });
+    setEditingTitle(false);
+  };
+
+  const addItemLocal = () => {
     if (!newTitle.trim()) return;
-
-    const newItem: PageItem = {
+    addItem({
       id: crypto.randomUUID(),
       title: newTitle,
       content: newContent,
@@ -30,162 +35,83 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType, pageMeta }) =>
       order: pageData?.items.length || 0,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    };
-
-    addItem(newItem);
+    });
     setNewTitle('');
     setNewContent('');
-    setIsAdding(false);
+    setAdding(false);
   };
-
-  const handleSavePageInfo = () => {
-    if (!pageData) return;
-    savePage({
-      ...pageData,
-      title: editPageTitle,
-      description: editPageDesc,
-    });
-    setIsEditingTitle(false);
-  };
-
-  const startEditPageInfo = () => {
-    if (!pageData) return;
-    setEditPageTitle(pageData.title || pageMeta.title);
-    setEditPageDesc(pageData.description || pageMeta.description);
-    setIsEditingTitle(true);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-8">
-      <div className="border-b border-gray-200 pb-4">
-        {isEditingTitle ? (
-          <div className="space-y-3">
-            <input
-              type="text"
-              value={editPageTitle}
-              onChange={(e) => setEditPageTitle(e.target.value)}
-              placeholder="页面标题"
-              className="w-full text-2xl font-bold border-b border-gray-300 
-                       focus:border-primary focus:outline-none py-1 bg-transparent"
-            />
-            <input
-              type="text"
-              value={editPageDesc}
-              onChange={(e) => setEditPageDesc(e.target.value)}
-              placeholder="页面描述"
-              className="w-full text-gray-500 border-b border-gray-200 
-                       focus:border-gray-400 focus:outline-none py-1 bg-transparent"
-            />
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={handleSavePageInfo}
-                className="px-4 py-2 bg-primary text-white rounded 
-                         flex items-center gap-1 hover:bg-blue-800 transition-colors"
-              >
-                <Check className="w-4 h-4" /> 保存
+    <div id="main" role="main" style={{ paddingTop: '2em' }}>
+      <article className="page" itemScope itemType="http://schema.org/CreativeWork" style={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
+        <div className="page__inner-wrap">
+          <section className="page__content">
+            {editingTitle ? (
+              <div className="edit-form" style={{ marginBottom: '1.5em' }}>
+                <input value={titleForm.title} onChange={e => setTitleForm(f => ({ ...f, title: e.target.value }))} placeholder="页面标题" />
+                <input value={titleForm.description} onChange={e => setTitleForm(f => ({ ...f, description: e.target.value }))} placeholder="页面描述" />
+                <div className="edit-actions">
+                  <button onClick={() => setEditingTitle(false)} className="btn-secondary">取消</button>
+                  <button onClick={saveTitle} className="btn-primary">保存</button>
+                </div>
+              </div>
+            ) : (
+              <div onClick={() => { setTitleForm({ title: pageData?.title || pageMeta.title, description: pageData?.description || pageMeta.description }); setEditingTitle(true); }} style={{ cursor: 'pointer', marginBottom: '1.5em' }}>
+                <h1>{pageData?.title || pageMeta.title}</h1>
+                <p style={{ color: '#7a8288' }}>{pageData?.description || pageMeta.description}</p>
+                <span style={{ fontSize: '0.75em', color: '#aaa' }}>点击编辑页面信息</span>
+              </div>
+            )}
+
+            {!adding && (
+              <button onClick={() => setAdding(true)} className="edit-btn" style={{ marginBottom: '1em' }}>
+                <Plus size={14} /> 添加条目
               </button>
-              <button
-                onClick={() => setIsEditingTitle(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded 
-                         flex items-center gap-1 transition-colors"
-              >
-                <X className="w-4 h-4" /> 取消
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div onClick={startEditPageInfo} className="cursor-pointer group">
-            <h1 className="text-2xl font-bold text-gray-900 group-hover:text-primary transition-colors">
-              {pageData?.title || pageMeta.title}
-            </h1>
-            <p className="text-gray-500 mt-1">
-              {pageData?.description || pageMeta.description}
-            </p>
-            <p className="text-xs text-gray-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              点击编辑页面信息
-            </p>
-          </div>
-        )}
-      </div>
+            )}
+            {adding && (
+              <div className="edit-form">
+                <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="标题" />
+                <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="内容..." rows={3} />
+                <div className="edit-actions">
+                  <button onClick={() => setAdding(false)} className="btn-secondary">取消</button>
+                  <button onClick={addItemLocal} className="btn-primary" disabled={!newTitle.trim()}>添加</button>
+                </div>
+              </div>
+            )}
 
-      {!isAdding ? (
-        <button
-          onClick={() => setIsAdding(true)}
-          className="w-full py-4 border-2 border-dashed border-gray-300 rounded 
-                   text-gray-500 hover:border-primary hover:text-primary 
-                   transition-colors flex items-center justify-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          添加新条目
-        </button>
-      ) : (
-        <div className="bg-white border border-border p-5 space-y-3">
-          <input
-            type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="标题"
-            className="w-full text-lg font-bold border-b border-gray-300 
-                     focus:border-primary focus:outline-none py-1 bg-transparent"
-          />
-          <textarea
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            placeholder="内容描述..."
-            rows={3}
-            className="w-full resize-none border border-gray-300 rounded p-3 focus:border-primary 
-                     focus:outline-none text-text"
-          />
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={() => {
-                setIsAdding(false);
-                setNewTitle('');
-                setNewContent('');
-              }}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded 
-                       flex items-center gap-1 transition-colors"
-            >
-              <X className="w-4 h-4" /> 取消
-            </button>
-            <button
-              onClick={handleAddItem}
-              disabled={!newTitle.trim()}
-              className="px-4 py-2 bg-primary text-white rounded 
-                       flex items-center gap-1 hover:bg-blue-800 transition-colors
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Plus className="w-4 h-4" /> 添加
-            </button>
-          </div>
+            <SortableList
+              items={pageData?.items || []}
+              onReorder={items => reorderItems(items.map((it, idx) => ({ ...it, order: idx })))}
+              renderItem={item => (
+                <div className="paper-box">
+                  <div className="paper-box-image">
+                    {item.files.filter(f => f.type === 'image')[0] ? (
+                      <img src={item.files.filter(f => f.type === 'image')[0].data} alt="" />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>
+                        <Globe size={32} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="paper-box-text">
+                    <p>
+                      <strong>{item.title}</strong>
+                      <span style={{ float: 'right', display: 'flex', gap: 4 }}>
+                        <button onClick={() => { const t = prompt('标题', item.title); if (t !== null) updateItem(item.id, { title: t }); }} className="edit-btn"><Edit3 size={12} /></button>
+                        <button onClick={() => { if (confirm('确定删除？')) deleteItem(item.id); }} className="edit-btn"><Trash2 size={12} /></button>
+                      </span>
+                      <br />
+                      {item.content}
+                    </p>
+                  </div>
+                </div>
+              )}
+            />
+
+            {pageData?.items.length === 0 && !adding && <p style={{ color: '#7a8288' }}>还没有内容。</p>}
+          </section>
         </div>
-      )}
-
-      <SortableList
-        items={pageData?.items || []}
-        onReorder={(items) => reorderItems(items.map((item, idx) => ({ ...item, order: idx })))}
-        renderItem={(item) => (
-          <EditableCard
-            item={item}
-            onUpdate={updateItem}
-            onDelete={deleteItem}
-          />
-        )}
-      />
-
-      {pageData?.items.length === 0 && !isAdding && (
-        <div className="text-center py-16 text-text-light">
-          <p>还没有内容，点击上方按钮添加第一条记录</p>
-        </div>
-      )}
+      </article>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, MapPin, Edit3, Check, X, Plus, Trash2, Github, Globe, Linkedin, Twitter, Link as LinkIcon } from 'lucide-react';
-import { PageItem, FileItem } from '@/types';
+import { MapPin, Mail, Github, Globe, Linkedin, Twitter, Link as LinkIcon, Edit3, Check, X, Plus, Trash2 } from 'lucide-react';
+import { FileItem } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
 import { useProfile } from '@/hooks/useProfile';
 import { FileUploader } from '@/components/FileUploader';
@@ -8,10 +8,7 @@ import { ImageViewer } from '@/components/ImageViewer';
 import { SortableList } from '@/components/SortableList';
 
 const socialIcons: Record<string, React.ElementType> = {
-  Github,
-  Linkedin,
-  Twitter,
-  Globe,
+  Github, Linkedin, Twitter, Globe,
 };
 
 function getSocialIcon(name: string) {
@@ -22,361 +19,199 @@ export const HomePage: React.FC = () => {
   const { pageData, loading, addItem, updateItem, deleteItem, reorderItems } = usePageData('home');
   const { profile, loading: profileLoading, saveProfile } = useProfile();
 
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [viewingImage, setViewingImage] = useState(false);
 
-  const [profileName, setProfileName] = useState('');
-  const [profileBio, setProfileBio] = useState('');
-  const [profileEmail, setProfileEmail] = useState('');
-  const [profileLocation, setProfileLocation] = useState('');
-  const [profileAvatar, setProfileAvatar] = useState('');
-  const [siteTitle, setSiteTitle] = useState('');
-  const [aboutTitle, setAboutTitle] = useState('');
+  const [form, setForm] = useState({
+    name: '', bio: '', email: '', location: '', avatar: '', siteTitle: '', aboutTitle: '',
+  });
   const [socials, setSocials] = useState<{ id: string; name: string; url: string; icon: string }[]>([]);
 
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
 
   if (loading || profileLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
+    return <div style={{ textAlign: 'center', padding: '4em' }}>Loading...</div>;
   }
 
-  const contentItems = pageData?.items || [];
+  const items = pageData?.items || [];
 
-  const startEditProfile = () => {
-    setProfileName(profile.name);
-    setProfileBio(profile.bio);
-    setProfileEmail(profile.email);
-    setProfileLocation(profile.location);
-    setProfileAvatar(profile.avatar);
-    setSiteTitle(profile.siteTitle);
-    setAboutTitle(profile.aboutTitle);
-    setSocials(profile.socials.length > 0 ? profile.socials : [{ id: crypto.randomUUID(), name: '', url: '', icon: 'Globe' }]);
-    setIsEditingProfile(true);
-  };
-
-  const saveProfileData = () => {
-    const validSocials = socials.filter(s => s.name.trim() && s.url.trim());
-    saveProfile({
-      name: profileName,
-      bio: profileBio,
-      email: profileEmail,
-      location: profileLocation,
-      avatar: profileAvatar,
-      socials: validSocials,
-      siteTitle: siteTitle.trim() || '我的网站',
-      aboutTitle: aboutTitle.trim() || '关于我',
+  const startEdit = () => {
+    setForm({
+      name: profile.name,
+      bio: profile.bio,
+      email: profile.email,
+      location: profile.location,
+      avatar: profile.avatar,
+      siteTitle: profile.siteTitle,
+      aboutTitle: profile.aboutTitle,
     });
-    setIsEditingProfile(false);
+    setSocials(profile.socials.length ? profile.socials : [{ id: crypto.randomUUID(), name: '', url: '', icon: 'Globe' }]);
+    setEditingProfile(true);
   };
 
-  const handleAvatarUpload = (files: FileItem[]) => {
-    if (files.length > 0) {
-      setProfileAvatar(files[0].data);
-    }
+  const save = () => {
+    saveProfile({
+      ...form,
+      siteTitle: form.siteTitle.trim() || 'Homepage',
+      aboutTitle: form.aboutTitle.trim() || 'About Me',
+      socials: socials.filter(s => s.name.trim() && s.url.trim()),
+    });
+    setEditingProfile(false);
   };
 
-  const handleAddItem = () => {
+  const onAvatar = (files: FileItem[]) => {
+    if (files[0]) setForm(f => ({ ...f, avatar: files[0].data }));
+  };
+
+  const addSocial = () => setSocials([...socials, { id: crypto.randomUUID(), name: '', url: '', icon: 'Globe' }]);
+  const updateSocial = (i: number, k: string, v: string) => {
+    const copy = [...socials];
+    copy[i] = { ...copy[i], [k]: v };
+    setSocials(copy);
+  };
+  const removeSocial = (i: number) => setSocials(socials.filter((_, idx) => idx !== i));
+
+  const addItemLocal = () => {
     if (!newTitle.trim()) return;
-    const newItem: PageItem = {
+    addItem({
       id: crypto.randomUUID(),
       title: newTitle,
       content: newContent,
       files: [],
-      order: contentItems.length,
+      order: items.length,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    };
-    addItem(newItem);
+    });
     setNewTitle('');
     setNewContent('');
-    setIsAdding(false);
-  };
-
-  const addSocial = () => {
-    setSocials([...socials, { id: crypto.randomUUID(), name: '', url: '', icon: 'Globe' }]);
-  };
-
-  const updateSocial = (index: number, field: string, value: string) => {
-    const updated = [...socials];
-    updated[index] = { ...updated[index], [field]: value };
-    setSocials(updated);
-  };
-
-  const removeSocial = (index: number) => {
-    setSocials(socials.filter((_, i) => i !== index));
+    setAdding(false);
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-10">
-      {/* Left Sidebar */}
-      <aside className="md:w-64 md:shrink-0">
-        <div className="md:sticky md:top-20">
-          {isEditingProfile ? (
-            <div className="space-y-4 bg-gray-50 p-4 rounded">
-              <div className="flex justify-center">
-                {profileAvatar ? (
-                  <div className="relative w-28 h-28">
-                    <img src={profileAvatar} alt="avatar" className="w-28 h-28 rounded-full object-cover" />
-                    <button
-                      onClick={() => setProfileAvatar('')}
-                      className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="w-28 h-28">
-                    <FileUploader onUpload={handleAvatarUpload} />
-                  </div>
-                )}
-              </div>
-
-              <input
-                value={siteTitle}
-                onChange={e => setSiteTitle(e.target.value)}
-                placeholder="网站标题"
-                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
-              />
-              <input
-                value={profileName}
-                onChange={e => setProfileName(e.target.value)}
-                placeholder="姓名"
-                className="w-full text-base font-bold border rounded px-2 py-1 focus:border-primary focus:outline-none"
-              />
-              <input
-                value={profileBio}
-                onChange={e => setProfileBio(e.target.value)}
-                placeholder="简介 / 职位"
-                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
-              />
-              <input
-                value={profileEmail}
-                onChange={e => setProfileEmail(e.target.value)}
-                placeholder="邮箱"
-                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
-              />
-              <input
-                value={profileLocation}
-                onChange={e => setProfileLocation(e.target.value)}
-                placeholder="地点"
-                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
-              />
-              <input
-                value={aboutTitle}
-                onChange={e => setAboutTitle(e.target.value)}
-                placeholder="关于我标题"
-                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
-              />
-
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-gray-500">社交链接</p>
-                {socials.map((social, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <input
-                      value={social.name}
-                      onChange={e => updateSocial(idx, 'name', e.target.value)}
-                      placeholder="名称"
-                      className="flex-1 min-w-0 text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
-                    />
-                    <input
-                      value={social.url}
-                      onChange={e => updateSocial(idx, 'url', e.target.value)}
-                      placeholder="链接"
-                      className="flex-[2] min-w-0 text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
-                    />
-                    <button onClick={() => removeSocial(idx)} className="text-gray-400 hover:text-red-500">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-                <button onClick={addSocial} className="text-sm text-primary hover:underline">
-                  + 添加链接
-                </button>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button onClick={saveProfileData} className="flex-1 px-3 py-1.5 bg-primary text-white rounded text-sm flex items-center justify-center gap-1">
-                  <Check className="w-4 h-4" /> 保存
-                </button>
-                <button onClick={() => setIsEditingProfile(false)} className="flex-1 px-3 py-1.5 text-gray-600 hover:bg-gray-200 rounded text-sm flex items-center justify-center gap-1">
-                  <X className="w-4 h-4" /> 取消
-                </button>
+    <div id="main" role="main">
+      <div className="sidebar sticky">
+        <div itemScope itemType="http://schema.org/Person" className="profile_box">
+          {editingProfile ? (
+            <div className="edit-form" style={{ textAlign: 'left' }}>
+              {form.avatar ? (
+                <div style={{ textAlign: 'center', position: 'relative' }}>
+                  <img src={form.avatar} alt="" className="author__avatar" />
+                  <button onClick={() => setForm(f => ({ ...f, avatar: '' }))} style={{ position: 'absolute', top: 0, right: 0 }}>×</button>
+                </div>
+              ) : (
+                <FileUploader onUpload={onAvatar} />
+              )}
+              <input value={form.siteTitle} onChange={e => setForm(f => ({ ...f, siteTitle: e.target.value }))} placeholder="Site title" />
+              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" />
+              <input value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder="Bio" />
+              <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" />
+              <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Location" />
+              <input value={form.aboutTitle} onChange={e => setForm(f => ({ ...f, aboutTitle: e.target.value }))} placeholder="About section title" />
+              {socials.map((s, i) => (
+                <div key={s.id} style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+                  <input value={s.name} onChange={e => updateSocial(i, 'name', e.target.value)} placeholder="Name" style={{ flex: 1 }} />
+                  <input value={s.url} onChange={e => updateSocial(i, 'url', e.target.value)} placeholder="URL" style={{ flex: 2 }} />
+                  <button onClick={() => removeSocial(i)}><X size={14} /></button>
+                </div>
+              ))}
+              <button onClick={addSocial} className="btn-secondary" style={{ width: '100%', marginBottom: 8 }}>+ Social</button>
+              <div className="edit-actions">
+                <button onClick={() => setEditingProfile(false)} className="btn-secondary"><X size={14} /> Cancel</button>
+                <button onClick={save} className="btn-primary"><Check size={14} /> Save</button>
               </div>
             </div>
           ) : (
-            <div className="text-center">
-              <div
-                className="relative w-32 h-32 mx-auto rounded-full overflow-hidden cursor-pointer group"
-                onClick={() => profile.avatar && setViewingImage(true)}
-              >
+            <>
+              <div className="author__avatar" onClick={() => profile.avatar && setViewingImage(true)} style={{ cursor: profile.avatar ? 'pointer' : 'default' }}>
                 {profile.avatar ? (
-                  <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
+                  <img src={profile.avatar} alt={profile.name} />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                  <div style={{ width: 150, height: 150, borderRadius: '50%', background: '#224b8d', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, margin: '0 auto' }}>
                     {profile.name?.[0] || '我'}
                   </div>
                 )}
-                <button
-                  onClick={startEditProfile}
-                  className="absolute bottom-1 right-1 p-1.5 bg-white text-gray-600 rounded-full shadow-md
-                           opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
-                >
-                  <Edit3 className="w-4 h-4" />
-                </button>
               </div>
-
-              <h1 className="mt-5 text-2xl font-bold text-gray-900">
-                {profile.name || '你的名字'}
-              </h1>
-              <p className="text-text-light text-sm mt-1">
-                {profile.bio || '介绍一下自己...'}
-              </p>
-
-              <div className="mt-5 text-left text-sm text-text-light space-y-1.5">
-                {profile.location && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-gray-400" /> {profile.location}
-                  </div>
-                )}
-                {profile.email && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gray-400" /> {profile.email}
-                  </div>
-                )}
+              <div className="author__content">
+                <h3 className="author__name">{profile.name || 'Your Name'}</h3>
+                <p className="author__bio">{profile.bio || 'Your bio...'}</p>
               </div>
-
-              {profile.socials.length > 0 && (
-                <div className="mt-5 text-left text-sm space-y-1.5">
-                  {profile.socials.map((social, idx) => {
-                    const Icon = getSocialIcon(social.icon);
-                    return (
-                      <a
-                        key={idx}
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-text hover:text-primary transition-colors hover:no-underline"
-                      >
-                        <Icon className="w-4 h-4 text-gray-400" />
-                        {social.name}
-                      </a>
-                    );
+              <div className="author__urls-wrapper">
+                <ul className="author__urls social-icons">
+                  {profile.location && <li><MapPin size={14} /> {profile.location}</li>}
+                  {profile.email && <li><Mail size={14} /> {profile.email}</li>}
+                  {profile.socials.map((s, i) => {
+                    const Icon = getSocialIcon(s.icon);
+                    return <li key={i}><a href={s.url} target="_blank" rel="noreferrer"><Icon size={14} /> {s.name}</a></li>;
                   })}
-                </div>
-              )}
-
-              <button
-                onClick={startEditProfile}
-                className="mt-6 w-full py-2 text-sm text-primary border border-primary/30 rounded
-                         hover:bg-primary/5 transition-colors"
-              >
-                编辑资料
+                </ul>
+              </div>
+              <button onClick={startEdit} className="edit-btn" style={{ marginTop: '1em' }}>
+                <Edit3 size={14} /> 编辑资料
               </button>
-            </div>
+            </>
           )}
         </div>
-      </aside>
+      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0">
-        <section className="mb-10">
-          <h2>{profile.aboutTitle || '关于我'}</h2>
-          <p className="text-text leading-relaxed whitespace-pre-wrap">
-            {profile.bio || '这里可以写一段自我介绍...'}
-          </p>
-        </section>
+      <article className="page" itemScope itemType="http://schema.org/CreativeWork">
+        <div className="page__inner-wrap">
+          <section className="page__content">
+            <p><span className="anchor" id="about-me"></span></p>
+            <h2 id="about-me">{profile.aboutTitle || 'About Me'}</h2>
+            <p>{profile.bio || 'Write something about yourself...'}</p>
 
-        <section>
-          <div className="flex items-center justify-between mb-4">
             <h2>动态</h2>
-            {!isAdding && (
-              <button
-                onClick={() => setIsAdding(true)}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm text-primary hover:bg-primary/5 rounded transition-colors"
-              >
-                <Plus className="w-4 h-4" /> 添加
+            {!adding && (
+              <button onClick={() => setAdding(true)} className="edit-btn" style={{ marginBottom: '1em' }}>
+                <Plus size={14} /> 添加条目
               </button>
             )}
-          </div>
-
-          {isAdding && (
-            <div className="bg-white border border-border p-5 mb-4 space-y-3">
-              <input
-                value={newTitle}
-                onChange={e => setNewTitle(e.target.value)}
-                placeholder="标题"
-                className="w-full text-lg font-semibold border-b border-gray-300 focus:border-primary focus:outline-none py-1"
-              />
-              <textarea
-                value={newContent}
-                onChange={e => setNewContent(e.target.value)}
-                placeholder="内容..."
-                rows={3}
-                className="w-full resize-none border border-gray-300 rounded p-3 focus:border-primary focus:outline-none"
-              />
-              <div className="flex gap-2">
-                <button onClick={handleAddItem} disabled={!newTitle.trim()} className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50">
-                  添加
-                </button>
-                <button onClick={() => { setIsAdding(false); setNewTitle(''); setNewContent(''); }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
-                  取消
-                </button>
-              </div>
-            </div>
-          )}
-
-          <SortableList
-            items={contentItems}
-            onReorder={(items) => reorderItems(items.map((item, idx) => ({ ...item, order: idx })))}
-            renderItem={(item) => (
-              <div className="bg-white border border-border p-0 mb-4 hover:shadow-soft transition-shadow group paper-box">
-                <div className="paper-box-image">
-                  {item.files.filter(f => f.type === 'image')[0] ? (
-                    <img src={item.files.filter(f => f.type === 'image')[0].data} alt="" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                      <Globe className="w-8 h-8" />
-                    </div>
-                  )}
-                </div>
-                <div className="paper-box-text">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-base font-bold text-gray-900">{item.title}</h3>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => {
-                        const newTitle = prompt('标题', item.title);
-                        if (newTitle !== null) updateItem(item.id, { title: newTitle });
-                      }} className="p-1.5 text-gray-400 hover:text-primary rounded">
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => {
-                        if (confirm('确定删除？')) deleteItem(item.id);
-                      }} className="p-1.5 text-gray-400 hover:text-red-500 rounded">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  {item.content && (
-                    <p className="mt-1 text-text text-sm whitespace-pre-wrap">{item.content}</p>
-                  )}
+            {adding && (
+              <div className="edit-form">
+                <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="标题" />
+                <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="内容..." rows={3} />
+                <div className="edit-actions">
+                  <button onClick={() => setAdding(false)} className="btn-secondary">取消</button>
+                  <button onClick={addItemLocal} className="btn-primary" disabled={!newTitle.trim()}>添加</button>
                 </div>
               </div>
             )}
-          />
 
-          {contentItems.length === 0 && !isAdding && (
-            <div className="text-center py-12 text-text-light border border-dashed border-gray-300">
-              还没有内容，点击添加按钮创建
-            </div>
-          )}
-        </section>
-      </div>
+            <SortableList
+              items={items}
+              onReorder={items => reorderItems(items.map((it, idx) => ({ ...it, order: idx })))}
+              renderItem={item => (
+                <div className="paper-box">
+                  <div className="paper-box-image">
+                    {item.files.filter(f => f.type === 'image')[0] ? (
+                      <img src={item.files.filter(f => f.type === 'image')[0].data} alt="" />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>
+                        <Globe size={32} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="paper-box-text">
+                    <p>
+                      <strong>{item.title}</strong>
+                      <span style={{ float: 'right', display: 'flex', gap: 4 }}>
+                        <button onClick={() => { const t = prompt('标题', item.title); if (t !== null) updateItem(item.id, { title: t }); }} className="edit-btn"><Edit3 size={12} /></button>
+                        <button onClick={() => { if (confirm('确定删除？')) deleteItem(item.id); }} className="edit-btn"><Trash2 size={12} /></button>
+                      </span>
+                      <br />
+                      {item.content}
+                    </p>
+                  </div>
+                </div>
+              )}
+            />
+
+            {items.length === 0 && !adding && <p style={{ color: '#7a8288' }}>还没有内容。</p>}
+          </section>
+        </div>
+      </article>
 
       {viewingImage && profile.avatar && (
         <ImageViewer files={[{ id: 'avatar', name: 'avatar', type: 'image', size: 0, data: profile.avatar, mimeType: 'image/*', createdAt: Date.now() }]} onClose={() => setViewingImage(false)} />
