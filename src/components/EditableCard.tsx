@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GripVertical, Trash2, Save, X, Edit3, FileText, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Save, X, Edit3, FileText } from 'lucide-react';
 import { PageItem, FileItem } from '@/types';
 import { FileUploader } from './FileUploader';
 import { ImageViewer } from './ImageViewer';
@@ -9,14 +9,12 @@ interface EditableCardProps {
   item: PageItem;
   onUpdate: (id: string, updates: Partial<PageItem>) => void;
   onDelete: (id: string) => void;
-  // dragHandleProps?: any;
 }
 
 export const EditableCard: React.FC<EditableCardProps> = ({ 
   item, 
   onUpdate, 
-  onDelete,
-  // dragHandleProps 
+  onDelete 
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);
@@ -55,16 +53,14 @@ export const EditableCard: React.FC<EditableCardProps> = ({
   if (isEditing) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-            placeholder="标题"
-            className="flex-1 text-lg font-semibold border-b-2 border-transparent 
-                     focus:border-primary focus:outline-none bg-transparent"
-          />
-        </div>
+        <input
+          type="text"
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
+          placeholder="标题"
+          className="w-full text-lg font-semibold border-b-2 border-transparent 
+                   focus:border-primary focus:outline-none bg-transparent"
+        />
 
         <textarea
           value={editContent}
@@ -106,13 +102,7 @@ export const EditableCard: React.FC<EditableCardProps> = ({
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 
                     hover:shadow-md transition-shadow group">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2 flex-1">
-            <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing text-gray-300 
-                                              group-hover:text-gray-400">
-              <GripVertical className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
 
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
@@ -134,13 +124,11 @@ export const EditableCard: React.FC<EditableCardProps> = ({
           <p className="mt-3 text-gray-600 whitespace-pre-wrap">{item.content}</p>
         )}
 
-        {/* 文件预览 */}
         {item.files.length > 0 && (
           <div className="mt-4 space-y-3">
-            {/* 图片网格 */}
             {imageFiles.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                {imageFiles.map((file, idx) => (
+                {imageFiles.map((file) => (
                   <button
                     key={file.id}
                     onClick={() => setViewingImage(true)}
@@ -157,7 +145,6 @@ export const EditableCard: React.FC<EditableCardProps> = ({
               </div>
             )}
 
-            {/* PDF 列表 */}
             {pdfFiles.length > 0 && (
               <div className="space-y-2">
                 {pdfFiles.map(file => (
@@ -180,7 +167,6 @@ export const EditableCard: React.FC<EditableCardProps> = ({
         )}
       </div>
 
-      {/* 图片查看器 */}
       {viewingImage && (
         <ImageViewer 
           files={item.files} 
@@ -188,7 +174,6 @@ export const EditableCard: React.FC<EditableCardProps> = ({
         />
       )}
 
-      {/* PDF 查看器 */}
       {viewingPdf && (
         <PDFViewer 
           pdfData={viewingPdf.data}
