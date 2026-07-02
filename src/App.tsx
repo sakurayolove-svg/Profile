@@ -4,7 +4,7 @@ import { Layout } from '@/components/Layout';
 import { HomePage } from '@/pages/HomePage';
 import { PageEditor } from '@/components/PageEditor';
 import { db } from '@/stores/db';
-import { PageMeta } from '@/types';
+import { PageMeta, DEFAULT_PAGES } from '@/types';
 
 function App() {
   const [pages, setPages] = useState<PageMeta[]>([]);
@@ -17,7 +17,13 @@ function App() {
   useEffect(() => {
     const load = async () => {
       await db.init();
-      const stored = await db.listPages();
+      let stored = await db.listPages();
+      if (stored.length === 0) {
+        for (const page of DEFAULT_PAGES) {
+          await db.savePageMeta(page);
+        }
+        stored = DEFAULT_PAGES;
+      }
       setPages(stored);
       setLoading(false);
     };

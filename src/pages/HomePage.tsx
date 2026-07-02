@@ -31,6 +31,8 @@ export const HomePage: React.FC = () => {
   const [profileEmail, setProfileEmail] = useState('');
   const [profileLocation, setProfileLocation] = useState('');
   const [profileAvatar, setProfileAvatar] = useState('');
+  const [siteTitle, setSiteTitle] = useState('');
+  const [aboutTitle, setAboutTitle] = useState('');
   const [socials, setSocials] = useState<{ id: string; name: string; url: string; icon: string }[]>([]);
 
   const [newTitle, setNewTitle] = useState('');
@@ -52,6 +54,8 @@ export const HomePage: React.FC = () => {
     setProfileEmail(profile.email);
     setProfileLocation(profile.location);
     setProfileAvatar(profile.avatar);
+    setSiteTitle(profile.siteTitle);
+    setAboutTitle(profile.aboutTitle);
     setSocials(profile.socials.length > 0 ? profile.socials : [{ id: crypto.randomUUID(), name: '', url: '', icon: 'Globe' }]);
     setIsEditingProfile(true);
   };
@@ -65,6 +69,8 @@ export const HomePage: React.FC = () => {
       location: profileLocation,
       avatar: profileAvatar,
       socials: validSocials,
+      siteTitle: siteTitle.trim() || '我的网站',
+      aboutTitle: aboutTitle.trim() || '关于我',
     });
     setIsEditingProfile(false);
   };
@@ -107,12 +113,12 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-8">
+    <div className="flex flex-col md:flex-row gap-10">
       {/* Left Sidebar */}
-      <aside className="md:w-72 md:shrink-0">
-        <div className="md:sticky md:top-24 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <aside className="md:w-64 md:shrink-0">
+        <div className="md:sticky md:top-20">
           {isEditingProfile ? (
-            <div className="space-y-4">
+            <div className="space-y-4 bg-gray-50 p-4 rounded">
               <div className="flex justify-center">
                 {profileAvatar ? (
                   <div className="relative w-28 h-28">
@@ -132,28 +138,40 @@ export const HomePage: React.FC = () => {
               </div>
 
               <input
+                value={siteTitle}
+                onChange={e => setSiteTitle(e.target.value)}
+                placeholder="网站标题"
+                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
+              />
+              <input
                 value={profileName}
                 onChange={e => setProfileName(e.target.value)}
                 placeholder="姓名"
-                className="w-full text-center text-xl font-bold border-b focus:border-primary focus:outline-none"
+                className="w-full text-base font-bold border rounded px-2 py-1 focus:border-primary focus:outline-none"
               />
               <input
                 value={profileBio}
                 onChange={e => setProfileBio(e.target.value)}
                 placeholder="简介 / 职位"
-                className="w-full text-center text-sm text-gray-600 border-b focus:border-primary focus:outline-none"
+                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
               />
               <input
                 value={profileEmail}
                 onChange={e => setProfileEmail(e.target.value)}
                 placeholder="邮箱"
-                className="w-full text-sm border-b focus:border-primary focus:outline-none"
+                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
               />
               <input
                 value={profileLocation}
                 onChange={e => setProfileLocation(e.target.value)}
                 placeholder="地点"
-                className="w-full text-sm border-b focus:border-primary focus:outline-none"
+                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
+              />
+              <input
+                value={aboutTitle}
+                onChange={e => setAboutTitle(e.target.value)}
+                placeholder="关于我标题"
+                className="w-full text-sm border rounded px-2 py-1 focus:border-primary focus:outline-none"
               />
 
               <div className="space-y-2">
@@ -183,10 +201,10 @@ export const HomePage: React.FC = () => {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <button onClick={saveProfileData} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg flex items-center justify-center gap-1">
+                <button onClick={saveProfileData} className="flex-1 px-3 py-1.5 bg-primary text-white rounded text-sm flex items-center justify-center gap-1">
                   <Check className="w-4 h-4" /> 保存
                 </button>
-                <button onClick={() => setIsEditingProfile(false)} className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center justify-center gap-1">
+                <button onClick={() => setIsEditingProfile(false)} className="flex-1 px-3 py-1.5 text-gray-600 hover:bg-gray-200 rounded text-sm flex items-center justify-center gap-1">
                   <X className="w-4 h-4" /> 取消
                 </button>
               </div>
@@ -194,46 +212,47 @@ export const HomePage: React.FC = () => {
           ) : (
             <div className="text-center">
               <div
-                className="relative w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-primary to-purple-500 
-                         flex items-center justify-center text-white text-3xl font-bold cursor-pointer group"
+                className="relative w-32 h-32 mx-auto rounded-full overflow-hidden cursor-pointer group"
                 onClick={() => profile.avatar && setViewingImage(true)}
               >
                 {profile.avatar ? (
-                  <img src={profile.avatar} alt="" className="w-28 h-28 rounded-full object-cover" />
+                  <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  profile.name?.[0] || '我'
+                  <div className="w-full h-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                    {profile.name?.[0] || '我'}
+                  </div>
                 )}
                 <button
                   onClick={startEditProfile}
-                  className="absolute -bottom-1 -right-1 p-1.5 bg-white text-gray-600 rounded-full shadow-md
+                  className="absolute bottom-1 right-1 p-1.5 bg-white text-gray-600 rounded-full shadow-md
                            opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
                 >
                   <Edit3 className="w-4 h-4" />
                 </button>
               </div>
 
-              <h1 className="mt-4 text-2xl font-bold text-gray-900">
+              <h1 className="mt-5 text-2xl font-bold text-gray-900">
                 {profile.name || '你的名字'}
               </h1>
-              <p className="text-gray-500 text-sm mt-1">
+              <p className="text-text-light text-sm mt-1">
                 {profile.bio || '介绍一下自己...'}
               </p>
 
-              <div className="mt-4 space-y-2 text-sm text-gray-500">
-                {profile.email && (
-                  <div className="flex items-center justify-center gap-1">
-                    <Mail className="w-4 h-4" /> {profile.email}
+              <div className="mt-5 text-left text-sm text-text-light space-y-1.5">
+                {profile.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-gray-400" /> {profile.location}
                   </div>
                 )}
-                {profile.location && (
-                  <div className="flex items-center justify-center gap-1">
-                    <MapPin className="w-4 h-4" /> {profile.location}
+                {profile.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-gray-400" /> {profile.email}
                   </div>
                 )}
               </div>
 
               {profile.socials.length > 0 && (
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <div className="mt-5 text-left text-sm space-y-1.5">
                   {profile.socials.map((social, idx) => {
                     const Icon = getSocialIcon(social.icon);
                     return (
@@ -242,9 +261,9 @@ export const HomePage: React.FC = () => {
                         href={social.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-primary/10 hover:text-primary transition-colors"
+                        className="flex items-center gap-2 text-text hover:text-primary transition-colors hover:no-underline"
                       >
-                        <Icon className="w-3.5 h-3.5 inline-block mr-1" />
+                        <Icon className="w-4 h-4 text-gray-400" />
                         {social.name}
                       </a>
                     );
@@ -254,7 +273,7 @@ export const HomePage: React.FC = () => {
 
               <button
                 onClick={startEditProfile}
-                className="mt-6 w-full py-2 text-sm text-primary border border-primary/30 rounded-lg
+                className="mt-6 w-full py-2 text-sm text-primary border border-primary/30 rounded
                          hover:bg-primary/5 transition-colors"
               >
                 编辑资料
@@ -266,20 +285,20 @@ export const HomePage: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 min-w-0">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">关于我</h2>
-          <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+        <section className="mb-10">
+          <h2>{profile.aboutTitle || '关于我'}</h2>
+          <p className="text-text leading-relaxed whitespace-pre-wrap">
             {profile.bio || '这里可以写一段自我介绍...'}
           </p>
-        </div>
+        </section>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">动态</h2>
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2>动态</h2>
             {!isAdding && (
               <button
                 onClick={() => setIsAdding(true)}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm text-primary hover:bg-blue-50 rounded-lg transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm text-primary hover:bg-primary/5 rounded transition-colors"
               >
                 <Plus className="w-4 h-4" /> 添加
               </button>
@@ -287,25 +306,25 @@ export const HomePage: React.FC = () => {
           </div>
 
           {isAdding && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
+            <div className="bg-white border border-border p-5 mb-4 space-y-3">
               <input
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
                 placeholder="标题"
-                className="w-full text-lg font-semibold border-b focus:border-primary focus:outline-none"
+                className="w-full text-lg font-semibold border-b border-gray-300 focus:border-primary focus:outline-none py-1"
               />
               <textarea
                 value={newContent}
                 onChange={e => setNewContent(e.target.value)}
                 placeholder="内容..."
                 rows={3}
-                className="w-full resize-none border rounded-lg p-3 focus:border-primary focus:outline-none"
+                className="w-full resize-none border border-gray-300 rounded p-3 focus:border-primary focus:outline-none"
               />
               <div className="flex gap-2">
-                <button onClick={handleAddItem} disabled={!newTitle.trim()} className="px-4 py-2 bg-primary text-white rounded-lg disabled:opacity-50">
+                <button onClick={handleAddItem} disabled={!newTitle.trim()} className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50">
                   添加
                 </button>
-                <button onClick={() => { setIsAdding(false); setNewTitle(''); setNewContent(''); }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                <button onClick={() => { setIsAdding(false); setNewTitle(''); setNewContent(''); }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
                   取消
                 </button>
               </div>
@@ -316,36 +335,47 @@ export const HomePage: React.FC = () => {
             items={contentItems}
             onReorder={(items) => reorderItems(items.map((item, idx) => ({ ...item, order: idx })))}
             renderItem={(item) => (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow group">
-                <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold">{item.title}</h3>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => {
-                      const newTitle = prompt('标题', item.title);
-                      if (newTitle !== null) updateItem(item.id, { title: newTitle });
-                    }} className="p-1.5 text-gray-400 hover:text-primary rounded">
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => {
-                      if (confirm('确定删除？')) deleteItem(item.id);
-                    }} className="p-1.5 text-gray-400 hover:text-red-500 rounded">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+              <div className="bg-white border border-border p-0 mb-4 hover:shadow-soft transition-shadow group paper-box">
+                <div className="paper-box-image">
+                  {item.files.filter(f => f.type === 'image')[0] ? (
+                    <img src={item.files.filter(f => f.type === 'image')[0].data} alt="" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                      <Globe className="w-8 h-8" />
+                    </div>
+                  )}
                 </div>
-                {item.content && (
-                  <p className="mt-2 text-gray-600 whitespace-pre-wrap">{item.content}</p>
-                )}
+                <div className="paper-box-text">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-base font-bold text-gray-900">{item.title}</h3>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => {
+                        const newTitle = prompt('标题', item.title);
+                        if (newTitle !== null) updateItem(item.id, { title: newTitle });
+                      }} className="p-1.5 text-gray-400 hover:text-primary rounded">
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => {
+                        if (confirm('确定删除？')) deleteItem(item.id);
+                      }} className="p-1.5 text-gray-400 hover:text-red-500 rounded">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  {item.content && (
+                    <p className="mt-1 text-text text-sm whitespace-pre-wrap">{item.content}</p>
+                  )}
+                </div>
               </div>
             )}
           />
 
           {contentItems.length === 0 && !isAdding && (
-            <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-dashed border-gray-300">
+            <div className="text-center py-12 text-text-light border border-dashed border-gray-300">
               还没有内容，点击添加按钮创建
             </div>
           )}
-        </div>
+        </section>
       </div>
 
       {viewingImage && profile.avatar && (
