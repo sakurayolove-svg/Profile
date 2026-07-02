@@ -1,4 +1,4 @@
-import { PageData, PageItem, FileItem, PageType } from '@/types';
+import { PageData, FileItem, PageType } from '@/types';
 
 const DB_NAME = 'PersonalWebsiteDB';
 const DB_VERSION = 1;

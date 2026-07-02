@@ -14,13 +14,14 @@ interface EditableCardProps {
 export const EditableCard: React.FC<EditableCardProps> = ({ 
   item, 
   onUpdate, 
-  onDelete 
+  onDelete
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);
   const [editContent, setEditContent] = useState(item.content);
   const [editFiles, setEditFiles] = useState<FileItem[]>(item.files);
   const [viewingImage, setViewingImage] = useState(false);
+  const [viewingImageIndex, setViewingImageIndex] = useState(0);
   const [viewingPdf, setViewingPdf] = useState<FileItem | null>(null);
 
   const handleSave = () => {
@@ -53,14 +54,16 @@ export const EditableCard: React.FC<EditableCardProps> = ({
   if (isEditing) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-        <input
-          type="text"
-          value={editTitle}
-          onChange={(e) => setEditTitle(e.target.value)}
-          placeholder="标题"
-          className="w-full text-lg font-semibold border-b-2 border-transparent 
-                   focus:border-primary focus:outline-none bg-transparent"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            placeholder="标题"
+            className="flex-1 text-lg font-semibold border-b-2 border-transparent 
+                     focus:border-primary focus:outline-none bg-transparent"
+          />
+        </div>
 
         <textarea
           value={editContent}
@@ -124,14 +127,19 @@ export const EditableCard: React.FC<EditableCardProps> = ({
           <p className="mt-3 text-gray-600 whitespace-pre-wrap">{item.content}</p>
         )}
 
+        {/* 文件预览 */}
         {item.files.length > 0 && (
           <div className="mt-4 space-y-3">
+            {/* 图片网格 */}
             {imageFiles.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                {imageFiles.map((file) => (
+                {imageFiles.map((file, index) => (
                   <button
                     key={file.id}
-                    onClick={() => setViewingImage(true)}
+                    onClick={() => {
+                      setViewingImageIndex(index);
+                      setViewingImage(true);
+                    }}
                     className="aspect-square rounded-lg overflow-hidden bg-gray-100 
                              hover:opacity-90 transition-opacity"
                   >
@@ -145,6 +153,7 @@ export const EditableCard: React.FC<EditableCardProps> = ({
               </div>
             )}
 
+            {/* PDF 列表 */}
             {pdfFiles.length > 0 && (
               <div className="space-y-2">
                 {pdfFiles.map(file => (
@@ -167,13 +176,16 @@ export const EditableCard: React.FC<EditableCardProps> = ({
         )}
       </div>
 
+      {/* 图片查看器 */}
       {viewingImage && (
         <ImageViewer 
           files={item.files} 
+          initialIndex={viewingImageIndex}
           onClose={() => setViewingImage(false)} 
         />
       )}
 
+      {/* PDF 查看器 */}
       {viewingPdf && (
         <PDFViewer 
           pdfData={viewingPdf.data}
