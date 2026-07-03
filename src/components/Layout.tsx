@@ -4,6 +4,7 @@ import { Settings, Download, Upload, Plus } from 'lucide-react';
 import { db } from '@/stores/db';
 import { PageMeta } from '@/types';
 import { useProfileContext } from '@/contexts/ProfileContext';
+import { useReadOnly } from '@/hooks/useReadOnly';
 import { PageManager } from './PageManager';
 
 interface LayoutProps {
@@ -15,6 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showPageManager, setShowPageManager] = useState(false);
   const { profile } = useProfileContext();
+  const readOnly = useReadOnly();
   const location = useLocation();
 
   const handleExport = async () => {
@@ -82,9 +84,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
             <Upload size={14} style={{ marginRight: 6 }} /> 导入备份
             <input type="file" accept=".json" onChange={handleImport} className="hidden" />
           </label>
-          <button onClick={() => { setShowPageManager(true); setShowSettings(false); }}>
-            <Plus size={14} style={{ marginRight: 6 }} /> 管理页面
-          </button>
+          {!readOnly && (
+            <button onClick={() => { setShowPageManager(true); setShowSettings(false); }}>
+              <Plus size={14} style={{ marginRight: 6 }} /> 管理页面
+            </button>
+          )}
         </div>
       )}
 
