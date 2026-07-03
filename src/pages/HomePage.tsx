@@ -24,7 +24,7 @@ export const HomePage: React.FC = () => {
   const [viewingImage, setViewingImage] = useState(false);
 
   const [form, setForm] = useState({
-    name: '', bio: '', email: '', location: '', avatar: '', siteTitle: '', aboutTitle: '',
+    name: '', bio: '', about: '', email: '', location: '', avatar: '', siteTitle: '', aboutTitle: '',
   });
   const [socials, setSocials] = useState<{ id: string; name: string; url: string; icon: string }[]>([]);
 
@@ -41,6 +41,7 @@ export const HomePage: React.FC = () => {
     setForm({
       name: profile.name,
       bio: profile.bio,
+      about: profile.about,
       email: profile.email,
       location: profile.location,
       avatar: profile.avatar,
@@ -54,7 +55,7 @@ export const HomePage: React.FC = () => {
   const save = () => {
     saveProfile({
       ...form,
-      siteTitle: form.siteTitle.trim() || 'Homepage',
+      siteTitle: form.siteTitle.trim() || '魔术师小站',
       aboutTitle: form.aboutTitle.trim() || 'About Me',
       socials: socials.filter(s => s.name.trim() && s.url.trim()),
     });
@@ -106,6 +107,7 @@ export const HomePage: React.FC = () => {
               <input value={form.siteTitle} onChange={e => setForm(f => ({ ...f, siteTitle: e.target.value }))} placeholder="Site title" />
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" />
               <input value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder="Bio" />
+              <textarea value={form.about} onChange={e => setForm(f => ({ ...f, about: e.target.value }))} placeholder="About me content" rows={3} />
               <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" />
               <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Location" />
               <input value={form.aboutTitle} onChange={e => setForm(f => ({ ...f, aboutTitle: e.target.value }))} placeholder="About section title" />
@@ -160,7 +162,7 @@ export const HomePage: React.FC = () => {
           <section className="page__content">
             <p><span className="anchor" id="about-me"></span></p>
             <h2 id="about-me">{profile.aboutTitle || 'About Me'}</h2>
-            <p>{profile.bio || 'Write something about yourself...'}</p>
+            <p>{profile.about || 'Write something about yourself...'}</p>
 
             <h2>动态</h2>
             {!adding && (
