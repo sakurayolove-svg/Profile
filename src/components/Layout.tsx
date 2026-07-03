@@ -1,21 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Settings, Menu, X, Download, Upload, Plus } from 'lucide-react';
+import { Settings, Download, Upload, Plus } from 'lucide-react';
 import { db } from '@/stores/db';
-import { PageMeta, ProfileData } from '@/types';
+import { PageMeta } from '@/types';
+import { useProfileContext } from '@/contexts/ProfileContext';
 import { PageManager } from './PageManager';
-
-const defaultProfile: ProfileData = {
-  name: '',
-  bio: '',
-  about: '',
-  email: '',
-  location: '',
-  avatar: '',
-  socials: [],
-  siteTitle: '魔术师小站',
-  aboutTitle: 'About Me',
-};
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,15 +12,10 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPageManager, setShowPageManager] = useState(false);
-  const [profile, setProfile] = useState<ProfileData>(defaultProfile);
+  const { profile } = useProfileContext();
   const location = useLocation();
-
-  useEffect(() => {
-    db.init().then(() => db.getProfile().then(setProfile));
-  }, []);
 
   const handleExport = async () => {
     const data = await db.exportAll();
@@ -56,7 +40,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
   };
 
   const navItems = [
-    { path: '/', label: profile.siteTitle || 'Homepage' },
+    { path: '/', label: profile.siteTitle || '魔术师小站' },
     ...pages.map(p => ({ path: `/${p.id}`, label: p.title })),
   ];
 
@@ -66,12 +50,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
         <div className="masthead__inner-wrap">
           <div className="masthead__menu">
             <nav className="greedy-nav">
-              <ul className="visible-links" style={{ display: mobileOpen ? 'flex' : undefined }}>
+              <ul className="visible-links">
                 {navItems.map(item => {
                   const isActive = location.pathname === item.path;
                   return (
                     <li key={item.path} className={isActive ? 'masthead__menu-item masthead__menu-item--lg' : 'masthead__menu-item'}>
-                      <Link to={item.path} onClick={() => setMobileOpen(false)} style={{ color: isActive ? '#224b8d' : undefined }}>
+                      <Link to={item.path} onClick={() => setShowSettings(false)} style={{ color: isActive ? '#224b8d' : undefined }}>
                         {item.label}
                       </Link>
                     </li>
@@ -84,13 +68,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, pages }) => {
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#494e52' }}
                 >
                   <Settings size={18} />
-                </button>
-                <button
-                  className="greedy-nav-button"
-                  onClick={() => setMobileOpen(!mobileOpen)}
-                  style={{ display: 'none' }}
-                >
-                  {mobileOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
               </div>
             </nav>
