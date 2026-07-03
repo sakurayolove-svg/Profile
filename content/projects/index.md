@@ -10,8 +10,8 @@ items:
     links:
       - text: 代码
         url: https://github.com/example/a
-  - title: 示例项目 B
-    content: 另一个示例项目，支持链接和图片。
+  - title: 电力电子控制系统代码库
+    content: 基于STM32F103C8T6，搭建电力电子控制系统所需模块代码，并提供恒压、恒流控制作为示例代码。
     image: project-b.png
     links:
       - text: 论文
