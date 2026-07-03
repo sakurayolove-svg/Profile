@@ -1,41 +1,85 @@
-# 个人网站
+# 魔术师小站
 
 https://sakurayolove-svg.github.io/Profile/
 
-## 功能特性
+## 特点
 
-- 四个子页面：简介、项目、知识、生活
-- 每个页面支持添加/编辑/删除/拖拽排序条目
-- 支持上传图片和 PDF 文件
-- 图片支持灯箱查看、缩放、翻页
-- PDF 支持浏览器内渲染、缩放、翻页、下载
-- 数据导出/导入（JSON 备份）
-- 响应式设计，支持移动端
+- 数据全部存在 Git 仓库里（`content/` 文件夹）
+- 每个子页面一个文件夹，包含 `index.md` 和相关图片/PDF
+- 使用 Python 静态站点生成器构建
+- UI 风格参考 https://xuzhang0112.github.io/
 
-## 技术栈
+## 目录结构
 
-- React 18 + TypeScript
-- Vite
-- Tailwind CSS
-- React Router（HashRouter）
-- @dnd-kit（拖拽排序）
-- pdf.js（PDF 渲染）
-- IndexedDB（本地数据存储）
-
-## 本地部署
-
-```bash
-npm install
-npm run dev
+```
+content/
+├── home/
+│   ├── index.md      # 首页资料、About Me 内容
+│   └── avatar.png    # 头像
+├── projects/
+│   ├── index.md      # 项目页面组织方式
+│   ├── project-a.png # 项目图片
+│   └── paper.pdf     # 项目 PDF
+├── knowledge/
+│   └── index.md
+└── life/
+    └── index.md
 ```
 
-## 部署到 GitHub Pages
+## 编辑流程
 
-1. 仓库 Settings → Pages → Source 选择 GitHub Actions
-2. 推送代码到 main 分支自动部署
+1. 修改 `content/` 下对应文件夹的 `index.md`
+2. 把图片、PDF 放到同一文件夹
+3. 提交并推送到 GitHub
+4. GitHub Actions 自动生成并部署站点
 
-## 数据备份
+## 本地预览
 
-点击右上角设置图标导出/导入 JSON 备份。
+```bash
+pip install -r requirements.txt
+python build.py --base /
+python -m http.server 8000 -d dist
+```
 
-> 数据存储在浏览器本地，请定期备份！
+然后访问 http://localhost:8000
+
+## 首页 index.md 字段
+
+```yaml
+---
+name: 你的名字
+bio: 侧边栏简介
+about: |
+  About Me 内容，支持 Markdown
+email: xxx@example.com
+location: 地点
+avatar: avatar.png
+siteTitle: 魔术师小站
+aboutTitle: 关于我
+socials:
+  - name: GitHub
+    url: https://github.com/xxx
+---
+```
+
+## 子页面 index.md 字段
+
+```yaml
+---
+title: 项目
+description: 我的项目作品
+icon: FolderGit
+order: 0
+items:
+  - title: 项目 A
+    content: 项目描述
+    image: project-a.png
+    links:
+      - text: 论文
+        url: https://arxiv.org/abs/xxx
+---
+
+自由内容区域，支持 Markdown。
+```
+
+同一文件夹下的图片和 PDF 会自动显示在页面底部。
