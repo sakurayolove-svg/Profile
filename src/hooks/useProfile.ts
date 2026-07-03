@@ -5,12 +5,13 @@ import { db } from '@/stores/db';
 const defaultProfile: ProfileData = {
   name: '',
   bio: '',
+  about: '',
   email: '',
   location: '',
   avatar: '',
   socials: [],
-  siteTitle: '我的网站',
-  aboutTitle: '关于我',
+  siteTitle: '魔术师小站',
+  aboutTitle: 'About Me',
 };
 
 export function useProfile() {

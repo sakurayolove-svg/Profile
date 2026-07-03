@@ -44,6 +44,7 @@ export const DEFAULT_PAGES: PageMeta[] = [
 export interface ProfileData {
   name: string;
   bio: string;
+  about: string;
   email: string;
   location: string;
   avatar: string;

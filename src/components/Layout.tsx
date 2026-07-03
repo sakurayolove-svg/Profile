@@ -8,11 +8,12 @@ import { PageManager } from './PageManager';
 const defaultProfile: ProfileData = {
   name: '',
   bio: '',
+  about: '',
   email: '',
   location: '',
   avatar: '',
   socials: [],
-  siteTitle: 'Homepage',
+  siteTitle: '魔术师小站',
   aboutTitle: 'About Me',
 };
 
