@@ -7,7 +7,6 @@ https://sakurayolove-svg.github.io/Profile/
 - 数据全部存在 Git 仓库里（`content/` 文件夹）
 - 每个子页面一个文件夹，包含 `index.md` 和相关图片/PDF
 - 使用 Python 静态站点生成器构建
-- UI 风格参考 https://xuzhang0112.github.io/
 
 ## 目录结构
 
