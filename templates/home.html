@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sidebar sticky">
+  <div itemscope itemtype="http://schema.org/Person" class="profile_box">
+    <div class="author__avatar">
+      {% if home.avatar %}
+      <img src="{{ home.avatar }}" alt="{{ home.name }}">
+      {% else %}
+      <div style="width:150px;height:150px;border-radius:50%;background:#224b8d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto;">
+        {{ home.name[0] if home.name else '我' }}
+      </div>
+      {% endif %}
+    </div>
+    <div class="author__content">
+      <h3 class="author__name">{{ home.name or 'Your Name' }}</h3>
+      <p class="author__bio">{{ home.bio or 'Your bio...' }}</p>
+    </div>
+    <div class="author__urls-wrapper">
+      <ul class="author__urls social-icons">
+        {% if home.location %}<li>📍 {{ home.location }}</li>{% endif %}
+        {% if home.email %}<li>✉️ {{ home.email }}</li>{% endif %}
+        {% for s in home.socials %}
+        <li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">🔗 {{ s.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+  <div class="page__inner-wrap">
+    <section class="page__content">
+      <h2 id="about-me">{{ home.aboutTitle or 'About Me' }}</h2>
+      {{ home.about | safe }}
+
+      <h2>动态</h2>
+      <p style="color:#7a8288;">编辑 content/home/index.md 添加动态内容。</p>
+    </section>
+  </div>
+</article>
+{% endblock %}

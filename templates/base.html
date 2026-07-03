@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ home.siteTitle }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ static('main.css') }}">
+</head>
+<body>
+  <div class="masthead">
+    <div class="masthead__inner-wrap">
+      <div class="masthead__menu">
+        <nav class="greedy-nav">
+          <ul class="visible-links">
+            <li class="masthead__menu-item{% if active == 'home' %} masthead__menu-item--lg{% endif %}">
+              <a href="{{ page_url('home') }}">{{ home.siteTitle or '魔术师小站' }}</a>
+            </li>
+            {% for p in pages %}
+            <li class="masthead__menu-item{% if active == p.id %} masthead__menu-item--lg{% endif %}">
+              <a href="{{ page_url(p.id) }}">{{ p.title }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div id="main" role="main">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
