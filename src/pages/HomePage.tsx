@@ -3,6 +3,7 @@ import { MapPin, Mail, Github, Globe, Linkedin, Twitter, Link as LinkIcon, Edit3
 import { FileItem } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
 import { useProfile } from '@/hooks/useProfile';
+import { useReadOnly } from '@/hooks/useReadOnly';
 import { FileUploader } from '@/components/FileUploader';
 import { ImageViewer } from '@/components/ImageViewer';
 import { SortableList } from '@/components/SortableList';
@@ -18,6 +19,7 @@ function getSocialIcon(name: string) {
 export const HomePage: React.FC = () => {
   const { pageData, loading, addItem, updateItem, deleteItem, reorderItems } = usePageData('home');
   const { profile, loading: profileLoading, saveProfile } = useProfile();
+  const readOnly = useReadOnly();
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -149,9 +151,11 @@ export const HomePage: React.FC = () => {
                   })}
                 </ul>
               </div>
-              <button onClick={startEdit} className="edit-btn" style={{ marginTop: '1em' }}>
-                <Edit3 size={14} /> 编辑资料
-              </button>
+              {!readOnly && (
+                <button onClick={startEdit} className="edit-btn" style={{ marginTop: '1em' }}>
+                  <Edit3 size={14} /> 编辑资料
+                </button>
+              )}
             </>
           )}
         </div>
@@ -165,7 +169,7 @@ export const HomePage: React.FC = () => {
             <p>{profile.about || 'Write something about yourself...'}</p>
 
             <h2>动态</h2>
-            {!adding && (
+            {!readOnly && !adding && (
               <button onClick={() => setAdding(true)} className="edit-btn" style={{ marginBottom: '1em' }}>
                 <Plus size={14} /> 添加条目
               </button>
@@ -198,10 +202,12 @@ export const HomePage: React.FC = () => {
                   <div className="paper-box-text">
                     <p>
                       <strong>{item.title}</strong>
-                      <span style={{ float: 'right', display: 'flex', gap: 4 }}>
-                        <button onClick={() => { const t = prompt('标题', item.title); if (t !== null) updateItem(item.id, { title: t }); }} className="edit-btn"><Edit3 size={12} /></button>
-                        <button onClick={() => { if (confirm('确定删除？')) deleteItem(item.id); }} className="edit-btn"><Trash2 size={12} /></button>
-                      </span>
+                      {!readOnly && (
+                        <span style={{ float: 'right', display: 'flex', gap: 4 }}>
+                          <button onClick={() => { const t = prompt('标题', item.title); if (t !== null) updateItem(item.id, { title: t }); }} className="edit-btn"><Edit3 size={12} /></button>
+                          <button onClick={() => { if (confirm('确定删除？')) deleteItem(item.id); }} className="edit-btn"><Trash2 size={12} /></button>
+                        </span>
+                      )}
                       <br />
                       {item.content}
                     </p>

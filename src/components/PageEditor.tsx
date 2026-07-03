@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Edit3, Trash2, Globe } from 'lucide-react';
 import { PageMeta } from '@/types';
 import { usePageData } from '@/hooks/usePageData';
+import { useReadOnly } from '@/hooks/useReadOnly';
 import { SortableList } from './SortableList';
 
 interface PageEditorProps {
@@ -11,6 +12,7 @@ interface PageEditorProps {
 
 export const PageEditor: React.FC<PageEditorProps> = ({ pageType, pageMeta }) => {
   const { pageData, loading, addItem, updateItem, deleteItem, reorderItems, savePage } = usePageData(pageType);
+  const readOnly = useReadOnly();
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
@@ -56,19 +58,19 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType, pageMeta }) =>
                 </div>
               </div>
             ) : (
-              <div onClick={() => { setTitleForm({ title: pageData?.title || pageMeta.title, description: pageData?.description || pageMeta.description }); setEditingTitle(true); }} style={{ cursor: 'pointer', marginBottom: '1.5em' }}>
+              <div onClick={() => { if (!readOnly) { setTitleForm({ title: pageData?.title || pageMeta.title, description: pageData?.description || pageMeta.description }); setEditingTitle(true); } }} style={{ cursor: readOnly ? 'default' : 'pointer', marginBottom: '1.5em' }}>
                 <h1>{pageData?.title || pageMeta.title}</h1>
                 <p style={{ color: '#7a8288' }}>{pageData?.description || pageMeta.description}</p>
-                <span style={{ fontSize: '0.75em', color: '#aaa' }}>点击编辑页面信息</span>
+                {!readOnly && <span style={{ fontSize: '0.75em', color: '#aaa' }}>点击编辑页面信息</span>}
               </div>
             )}
 
-            {!adding && (
+            {!readOnly && !adding && (
               <button onClick={() => setAdding(true)} className="edit-btn" style={{ marginBottom: '1em' }}>
                 <Plus size={14} /> 添加条目
               </button>
             )}
-            {adding && (
+            {!readOnly && adding && (
               <div className="edit-form">
                 <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="标题" />
                 <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="内容..." rows={3} />
@@ -96,10 +98,12 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageType, pageMeta }) =>
                   <div className="paper-box-text">
                     <p>
                       <strong>{item.title}</strong>
-                      <span style={{ float: 'right', display: 'flex', gap: 4 }}>
-                        <button onClick={() => { const t = prompt('标题', item.title); if (t !== null) updateItem(item.id, { title: t }); }} className="edit-btn"><Edit3 size={12} /></button>
-                        <button onClick={() => { if (confirm('确定删除？')) deleteItem(item.id); }} className="edit-btn"><Trash2 size={12} /></button>
-                      </span>
+                      {!readOnly && (
+                        <span style={{ float: 'right', display: 'flex', gap: 4 }}>
+                          <button onClick={() => { const t = prompt('标题', item.title); if (t !== null) updateItem(item.id, { title: t }); }} className="edit-btn"><Edit3 size={12} /></button>
+                          <button onClick={() => { if (confirm('确定删除？')) deleteItem(item.id); }} className="edit-btn"><Trash2 size={12} /></button>
+                        </span>
+                      )}
                       <br />
                       {item.content}
                     </p>
