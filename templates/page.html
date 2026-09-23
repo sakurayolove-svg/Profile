@@ -11,6 +11,7 @@
 
       {{ page.body_html | safe }}
 
+      {# 原代码开始
       {% for item in page.entries %}
       <div class="paper-box">
         <div class="paper-box-image">
@@ -33,6 +34,37 @@
         </div>
       </div>
       {% endfor %}
+      原代码结束 #}
+      {# 插入开始 #}
+      {% if page.id == 'projects' and home.updates %}
+      {% set cards = home.updates %}
+      {% set text_key = 'excerpt' %}
+      {% include 'cards.html' %}
+      {% else %}
+      {% for item in page.entries %}
+      <div class="paper-box">
+        <div class="paper-box-image">
+          {% if item.image %}
+          <img src="{{ item.image }}" alt="{{ item.title }}">
+          {% else %}
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ccc;">🌐</div>
+          {% endif %}
+        </div>
+        <div class="paper-box-text">
+          <p>
+            <strong>{{ item.title }}</strong>
+            {% if item.links %}
+            <br>
+            {% for link in item.links %}<a href="{{ link.url }}">{{ link.text }}</a>{% if not loop.last %} | {% endif %}{% endfor %}
+            {% endif %}
+            <br>
+            {{ item.content }}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {# 插入结束 #}
 
       {% if page.images %}
       <h2>图片</h2>

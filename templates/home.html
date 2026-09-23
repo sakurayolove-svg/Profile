@@ -35,7 +35,41 @@
       {{ home.about | safe }}
 
       <h2>动态</h2>
+      {# 原代码开始
       <p style="color:#7a8288;">编辑 content/home/index.md 添加动态内容。</p>
+      原代码结束 #}
+      {# 插入开始 #}
+      {% if home.updates %}
+      {# 原代码开始
+      <ul>
+        {% for u in home.updates %}
+        <li><strong>{{ u.date }}</strong>　{{ u.content }}</li>
+        {% endfor %}
+      </ul>
+      原代码结束 #}
+      {# 插入开始 #}
+      {# 原代码开始
+      <div class="update-grid">
+        {% for u in home.updates %}
+        <a class="update-card" href="{{ base }}projects/{{ u.slug }}/">
+          <img src="{{ base }}{{ u.image }}" alt="{{ u.title }}">
+          <div class="update-card-body">
+            <time>{{ u.date }}</time>
+            <strong>{{ u.title }}</strong>
+            <p>{{ u.content }}</p>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      原代码结束 #}
+      {% set cards = home.updates %}
+      {% set text_key = 'content' %}
+      {% include 'cards.html' %}
+      {# 插入结束 #}
+      {% else %}
+      <p style="color:#7a8288;">暂无动态。</p>
+      {% endif %}
+      {# 插入结束 #}
     </section>
   </div>
 </article>

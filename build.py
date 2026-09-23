@@ -57,6 +57,11 @@ def discover_pages() -> list[dict[str, Any]]:
     return pages
 
 
+def clip(text: str, n: int = 48) -> str:
+    t = (text or "").strip()
+    return t if len(t) <= n else t[:n].rstrip() + "…"
+
+
 def load_home() -> dict[str, Any]:
     home_dir = CONTENT_DIR / "home"
     md_file = home_dir / "index.md"
@@ -72,6 +77,9 @@ def load_home() -> dict[str, Any]:
             "socials": [],
             "siteTitle": "魔术师小站",
             "aboutTitle": "About Me",
+            # 插入开始
+            "updates": [],
+            # 插入结束
         }
     meta, _ = load_markdown(md_file)
     return {
@@ -84,6 +92,16 @@ def load_home() -> dict[str, Any]:
         "socials": meta.get("socials", []),
         "siteTitle": meta.get("siteTitle", "魔术师小站"),
         "aboutTitle": meta.get("aboutTitle", "About Me"),
+        # 插入开始
+        # 原代码开始
+        # "updates": meta.get("updates") or [],
+        # 原代码结束
+        "updates": [
+            {**u, "body": u.get("body") or u.get("content", ""),
+             "excerpt": clip(u.get("body") or u.get("content", ""))}
+            for u in (meta.get("updates") or [])
+        ],
+        # 插入结束
     }
 
 
@@ -141,6 +159,18 @@ def build() -> int:
         out_dir = OUTPUT_DIR / page["id"]
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(html, encoding="utf-8")
+
+    # 插入开始
+    update_template = env.get_template("update.html")
+    for u in home.get("updates") or []:
+        if not u.get("slug"):
+            continue
+        out_dir = OUTPUT_DIR / "projects" / u["slug"]
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "index.html").write_text(
+            update_template.render(home=home, pages=pages, update=u), encoding="utf-8"
+        )
+    # 插入结束
 
     # Build home
     html = home_template.render(home=home, pages=pages)

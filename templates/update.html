@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ update.title }} | {{ home.siteTitle }}{% endblock %}
+{% block content %}
+<article class="page page--full">
+  <div class="page__inner-wrap">
+    <section class="page__content">
+      <p><a href="{{ page_url('projects') }}">← 项目</a></p>
+      <h1>{{ update.title }}</h1>
+      <p style="color:#7a8288;">{{ update.date }}</p>
+      {% if update.image %}<p><img src="{{ base }}{{ update.image }}" alt="{{ update.title }}"></p>{% endif %}
+      {# 原代码开始
+      <p>{{ update.content }}</p>
+      原代码结束 #}
+      <p>{{ update.body or update.content }}</p>
+    </section>
+  </div>
+</article>
+{% endblock %}
