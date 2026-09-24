@@ -1,7 +1,12 @@
 <div class="update-grid">
   {% for u in cards %}
   <a class="update-card" href="{{ base }}projects/{{ u.slug }}/">
+    {# 原代码开始
     <img src="{{ base }}{{ u.image }}" alt="{{ u.title }}">
+    原代码结束 #}
+    {# 插入开始 #}
+    <img src="{{ base }}projects/{{ u.slug }}/{{ u.image }}" alt="{{ u.title }}">
+    {# 插入结束 #}
     <div class="update-card-body">
       <time>{{ u.date }}</time>
       <strong>{{ u.title }}</strong>

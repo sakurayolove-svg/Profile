@@ -57,6 +57,37 @@ def discover_pages() -> list[dict[str, Any]]:
     return pages
 
 
+# 插入开始
+def discover_projects() -> list[dict[str, Any]]:
+    """从 content/projects/<slug>/index.md 加载项目详情。"""
+    projects_dir = CONTENT_DIR / "projects"
+    updates: list[dict[str, Any]] = []
+    if not projects_dir.exists():
+        return updates
+    for folder in projects_dir.iterdir():
+        if not folder.is_dir():
+            continue
+        md_file = folder / "index.md"
+        if not md_file.exists():
+            continue
+        meta, body = load_markdown(md_file)
+        raw_body = body or meta.get("content", "") or ""
+        updates.append({
+            "slug": folder.name,
+            "date": meta.get("date", ""),
+            "title": meta.get("title", folder.name),
+            "image": meta.get("image", ""),
+            "content": meta.get("content", ""),
+            "tags": meta.get("tags") or [],
+            "body": raw_body,
+            "body_html": markdown.markdown(raw_body, extensions=["extra"]),
+            "excerpt": clip(raw_body or meta.get("content", "") or ""),
+        })
+    updates.sort(key=lambda u: u.get("date", ""), reverse=True)
+    return updates
+# 插入结束
+
+
 def clip(text: str, n: int = 48) -> str:
     # 原代码开始
     # t = (text or "").strip()
@@ -114,13 +145,14 @@ def load_home() -> dict[str, Any]:
         # 插入开始
         # 原代码开始
         # "updates": meta.get("updates") or [],
+        # "updates": [
+        #     {**u, "body": (u.get("body") or u.get("content", "")),
+        #      "body_html": markdown.markdown(u.get("body") or u.get("content", ""), extensions=["extra"]),
+        #      "excerpt": clip(" ".join((u.get("body") or u.get("content", "")).split()))}
+        #     for u in (meta.get("updates") or [])
+        # ],
         # 原代码结束
-        "updates": [
-            {**u, "body": (u.get("body") or u.get("content", "")),
-             "body_html": markdown.markdown(u.get("body") or u.get("content", ""), extensions=["extra"]),
-             "excerpt": clip(" ".join((u.get("body") or u.get("content", "")).split()))}
-            for u in (meta.get("updates") or [])
-        ],
+        "updates": discover_projects(),
         # 插入结束
     }
 
@@ -145,6 +177,20 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
                 continue
             if f.is_file():
                 shutil.copy2(f, dst / f.name)
+
+    # 插入开始：项目子目录配图 → dist/projects/<slug>/
+    projects_dir = CONTENT_DIR / "projects"
+    if projects_dir.exists():
+        for folder in projects_dir.iterdir():
+            if not folder.is_dir():
+                continue
+            dst = OUTPUT_DIR / "projects" / folder.name
+            dst.mkdir(parents=True, exist_ok=True)
+            for f in folder.iterdir():
+                if f.name == "index.md" or not f.is_file():
+                    continue
+                shutil.copy2(f, dst / f.name)
+    # 插入结束
 
 
 def build() -> int:
