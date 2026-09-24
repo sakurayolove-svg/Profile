@@ -5,6 +5,9 @@
     <div class="update-card-body">
       <time>{{ u.date }}</time>
       <strong>{{ u.title }}</strong>
+      {# 插入开始 #}
+      {% if u.tags %}<ul class="tag-list">{% for t in u.tags %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+      {# 插入结束 #}
       <p>{{ u[text_key] }}</p>
     </div>
   </a>

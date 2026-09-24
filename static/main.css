@@ -329,3 +329,10 @@ img {
 .update-card p { margin: 0; font-size: 0.9em; color: #7a8288; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .update-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); text-decoration: none; }
 /* 插入结束 */
+
+/* 插入开始 */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.35em; margin: 0.4em 0; padding: 0; list-style: none; }
+.tag-list li { font-size: 0.75em; line-height: 1.4; padding: 0.1em 0.5em; border-radius: 999px; background: #f2f3f3; color: #494e52; }
+.page__content .tag-list { padding-left: 0; list-style: none; }
+.page__content .tag-list li { margin-bottom: 0; list-style: none; }
+/* 插入结束 */

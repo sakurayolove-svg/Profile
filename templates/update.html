@@ -7,6 +7,9 @@
       <p><a href="{{ page_url('projects') }}">← 项目</a></p>
       <h1>{{ update.title }}</h1>
       <p style="color:#7a8288;">{{ update.date }}</p>
+      {# 插入开始 #}
+      {% if update.tags %}<ul class="tag-list">{% for t in update.tags %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+      {# 插入结束 #}
       {# 原代码开始
       {% if update.image %}<p><img src="{{ base }}{{ update.image }}" alt="{{ update.title }}"></p>{% endif %}
       原代码结束 #}
