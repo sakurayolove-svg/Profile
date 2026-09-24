@@ -58,8 +58,27 @@ def discover_pages() -> list[dict[str, Any]]:
 
 
 def clip(text: str, n: int = 48) -> str:
-    t = (text or "").strip()
+    # 原代码开始
+    # t = (text or "").strip()
+    # return t if len(t) <= n else t[:n].rstrip() + "…"
+    # 原代码结束
+    # 插入开始
+    raw = text or ""
+    if "## 项目内容" in raw:
+        after = raw.split("## 项目内容", 1)[1]
+        if "## 负责工作" in after:
+            after = after.split("## 负责工作", 1)[0]
+        elif "## " in after:
+            after = after.split("## ", 1)[0]
+        para = next(
+            (ln.strip() for ln in after.replace("![", "\n![").splitlines()
+             if ln.strip() and not ln.strip().startswith(("!", "#"))),
+            "",
+        )
+        raw = para or raw
+    t = " ".join(raw.split())
     return t if len(t) <= n else t[:n].rstrip() + "…"
+    # 插入结束
 
 
 def load_home() -> dict[str, Any]:
@@ -97,8 +116,9 @@ def load_home() -> dict[str, Any]:
         # "updates": meta.get("updates") or [],
         # 原代码结束
         "updates": [
-            {**u, "body": u.get("body") or u.get("content", ""),
-             "excerpt": clip(u.get("body") or u.get("content", ""))}
+            {**u, "body": (u.get("body") or u.get("content", "")),
+             "body_html": markdown.markdown(u.get("body") or u.get("content", ""), extensions=["extra"]),
+             "excerpt": clip(" ".join((u.get("body") or u.get("content", "")).split()))}
             for u in (meta.get("updates") or [])
         ],
         # 插入结束
