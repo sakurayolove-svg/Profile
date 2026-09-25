@@ -1,17 +1,19 @@
 ---
 date: 2025年10月
 title: 旅游规划Agent
-image: cover-sample.svg
+image: mcp.png
 content: 基于 Python 构建 AI Agent 流水线，实现旅游地理信息感知、媒体内容生成与内容自动发布。
 tags: [MCP, Agent, Python]
 ---
 
 ## 项目内容
-个人项目。基于 Python 构建 AI Agent 流水线，实现旅游地理信息感知、媒体内容生成与内容自动发布。
+利用 Python 构建 AI Agent 流水线，实现从旅游地理信息感知、媒体内容生成，到内容自动发布的全流程。
+
+![mcp框架](mcp.png)
 
 ## 负责工作
-基于 MCP 协议对接高德 API，实现地理信息编码、近几日天气获取和附近美食查询。
+基于MCP协议封装高德API工具，实现地理信息编码、近期天气获取、附近美食查询等；
 
-利用 PIL 做可视化图片拼版与文字配图，并生成结构化笔记。
+利用 PIL 库 实现自动化的图片排版与文字覆盖，生成结构化博客；
 
-基于 Selenium 和 xhs-toolkit 做成小红书结构化一键发布。
+基于 Selenium和xhs-toolkit开发发布工具，在小红书平台实现推文的一键自动发布。

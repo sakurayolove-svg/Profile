@@ -331,6 +331,10 @@ img {
 .update-card strong { display: block; margin: 0.25em 0; }
 .update-card p { margin: 0; font-size: 0.9em; color: #7a8288; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .update-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); text-decoration: none; }
+/* 插入开始 */
+.update-entry { display: flex; flex-direction: column; gap: 0.6em; }
+.update-rule { width: 100%; border: 0; border-top: 1px solid #e5e7eb; margin: 0.4em 0 0; }
+.update-action { margin: 0; font-size: 0.9em; color: #7a8288; }
 /* 插入结束 */
 
 /* 插入开始 */

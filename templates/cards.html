@@ -1,5 +1,8 @@
 <div class="update-grid">
   {% for u in cards %}
+  {# 插入开始 #}
+  {% if show_action %}<div class="update-entry"><hr class="update-rule"><p class="update-action">{{ u.action or '完成项目' }}</p>{% endif %}
+  {# 插入结束 #}
   <a class="update-card" href="{{ base }}projects/{{ u.slug }}/">
     {# 原代码开始
     <img src="{{ base }}{{ u.image }}" alt="{{ u.title }}">
@@ -16,5 +19,8 @@
       <p>{{ u[text_key] }}</p>
     </div>
   </a>
+  {# 插入开始 #}
+  {% if show_action %}</div>{% endif %}
+  {# 插入结束 #}
   {% endfor %}
 </div>

@@ -3,7 +3,7 @@
 ## date: 2025年04月
 title: 无监督多模态图像配准方法研究
 image: reg-framework.png
-content: 完成无监督配准，TRE 降至 2.44±1.11mm
+content: 以ConvexAdam为基线，对术中US和术前MRI实现静态配准，将TRE从2.773 ± 1.273mm降低至2.44±1.11mm。
 tags: [多模态, 图像配准, Python]
 
 ## 项目内容

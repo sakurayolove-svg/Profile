@@ -102,6 +102,9 @@ def discover_projects() -> list[dict[str, Any]]:
             "body": raw_body,
             "body_html": markdown.markdown(raw_body, extensions=["extra"]),
             "excerpt": clip(raw_body or meta.get("content", "") or ""),
+            # 插入开始
+            "action": meta.get("action") or "完成项目",
+            # 插入结束
         })
     updates.sort(key=lambda u: u.get("date", ""), reverse=True)
     return updates
