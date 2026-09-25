@@ -1,23 +1,27 @@
 ---
 date: 2024年02月
-title: 罗氏线圈电流传感器
-image: rogowski-principle.png
-content: 罗氏线圈电流传感器获省级 SIT 二等奖
+title: 高抗扰性、高灵敏度的罗氏线圈电流传感器
+image: rogowski-chip.png
+content: 以罗氏线圈为前置微分电路，后加低直流偏置积分器、直流补偿电路，设计高抗扰性、高灵敏度的罗氏线圈电流传感器
 tags: [电力电子, 电路设计, 物理建模]
 ---
 
 ## 项目内容
-以罗氏线圈为前置环节，后接低直流滤波电路和直流补偿电路，做成抗干扰、较灵敏的罗氏线圈电流传感器；省级 SIT 计划结项获二等奖。
 
-![罗氏线圈原理](rogowski-principle.png)
-
-## 负责工作
-负责积分器设计，要求高带宽、低直流偏置；并基于采样-滤波-保持（SFH）做直流补偿。
-
-![SFH 调理电路](rogowski-sfh.png)
-
-完成电路仿真与调试，用 Buck 电流波形核对积分与补偿结果。
-
-![Buck 电流波形](rogowski-waveform.png)
+以罗氏线圈为前置微分电路，后加低直流偏置积分器、直流补偿电路，设计高抗扰性、高灵敏度的罗氏线圈电流传感器。
 
 ![实验平台](rogowski-setup.jpg)
+
+![rogowski-chip](./rogowski-chip.png)
+
+## 负责工作
+
+以高带宽、低直流偏置、高增益为目标，选择了无源-有源级联积分器。最终测试得到，所设计积分器能够在增益大于10e6的同时，带宽达到33.6MHz。
+
+![image-20260925180943176](./rogowski-integer02.jpg)
+
+采用采样-滤波-保持方法（SFH），提取积分器损失的直流成分。完成电路仿真与调试，用 Buck 电流波形核对积分与补偿结果，所提方法将直流偏置从13A降低至0.5A。
+
+![image-20260925183036467](./rogowski-sfh-principle.png)
+
+<!-- ![Buck 电流波形](rogowski-waveform.png) -->

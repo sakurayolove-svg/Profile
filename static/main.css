@@ -336,3 +336,23 @@ img {
 .page__content .tag-list { padding-left: 0; list-style: none; }
 .page__content .tag-list li { margin-bottom: 0; list-style: none; }
 /* 插入结束 */
+
+/* 插入开始 */
+/* 原代码开始
+.page--full .page__content img {
+  display: block;
+  width: 70%;
+  max-width: 560px;
+  height: auto;
+  margin: 1em auto;
+}
+原代码结束 */
+/* 涉及修改算法结构，考虑修复 */
+.page--full .page__content p > img {
+  display: block;
+  width: 70%;
+  max-width: 560px;
+  height: auto;
+  margin: 1em auto;
+}
+/* 插入结束 */

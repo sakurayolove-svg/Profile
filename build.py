@@ -20,13 +20,33 @@ OUTPUT_DIR = ROOT / "dist"
 
 def load_markdown(path: Path) -> tuple[dict[str, Any], str]:
     text = path.read_text(encoding="utf-8")
-    if text.startswith("---"):
-        _, frontmatter, body = text.split("---", 2)
-        meta = yaml.safe_load(frontmatter) or {}
+    # 原代码开始
+    # if text.startswith("---"):
+    #     _, frontmatter, body = text.split("---", 2)
+    #     meta = yaml.safe_load(frontmatter) or {}
+    # else:
+    #     meta = {}
+    #     body = text
+    # return meta, body.strip()
+    # 原代码结束
+    # 插入开始
+    if not text.startswith("---"):
+        return {}, text.strip()
+    parts = text.split("---", 2)
+    if len(parts) >= 3:
+        frontmatter, body = parts[1], parts[2]
     else:
-        meta = {}
-        body = text
+        rest = parts[1] if len(parts) > 1 else ""
+        lines = rest.splitlines()
+        cut = next((i for i, ln in enumerate(lines) if ln.startswith("## ") and not ln.startswith("## date:")), len(lines))
+        frontmatter = "\n".join(lines[:cut])
+        body = "\n".join(lines[cut:])
+    fm = "\n".join(
+        (ln[3:].lstrip() if ln.startswith("## date:") else ln) for ln in frontmatter.splitlines()
+    )
+    meta = yaml.safe_load(fm) or {}
     return meta, body.strip()
+    # 插入结束
 
 
 def discover_pages() -> list[dict[str, Any]]:
