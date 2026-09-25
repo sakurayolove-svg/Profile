@@ -104,7 +104,41 @@ def discover_projects() -> list[dict[str, Any]]:
             "excerpt": clip(raw_body or meta.get("content", "") or ""),
             # 插入开始
             "action": meta.get("action") or "完成项目",
+            "kind": "projects",
             # 插入结束
+        })
+    updates.sort(key=lambda u: u.get("date", ""), reverse=True)
+    return updates
+# 插入结束
+
+
+# 插入开始
+def discover_knowledge() -> list[dict[str, Any]]:
+    """从 content/knowledge/<slug>/index.md 加载课程笔记。"""
+    knowledge_dir = CONTENT_DIR / "knowledge"
+    updates: list[dict[str, Any]] = []
+    if not knowledge_dir.exists():
+        return updates
+    for folder in knowledge_dir.iterdir():
+        if not folder.is_dir():
+            continue
+        md_file = folder / "index.md"
+        if not md_file.exists():
+            continue
+        meta, body = load_markdown(md_file)
+        raw_body = body or meta.get("content", "") or ""
+        updates.append({
+            "slug": folder.name,
+            "date": meta.get("date", ""),
+            "title": meta.get("title", folder.name),
+            "image": meta.get("image", "") or "",
+            "content": meta.get("content", "") or "",
+            "tags": meta.get("tags") or [],
+            "body": raw_body,
+            "body_html": markdown.markdown(raw_body, extensions=["extra"]),
+            "excerpt": clip(raw_body or meta.get("content", "") or ""),
+            "action": meta.get("action") or "发布知识",
+            "kind": "knowledge",
         })
     updates.sort(key=lambda u: u.get("date", ""), reverse=True)
     return updates
@@ -130,6 +164,9 @@ def clip(text: str, n: int = 48) -> str:
             "",
         )
         raw = para or raw
+    # 插入开始
+    raw = " ".join(tok for tok in (raw or "").split() if not tok.startswith("!["))
+    # 插入结束
     t = " ".join(raw.split())
     return t if len(t) <= n else t[:n].rstrip() + "…"
     # 插入结束
@@ -155,6 +192,10 @@ def load_home() -> dict[str, Any]:
             # 插入结束
         }
     meta, _ = load_markdown(md_file)
+    # 插入开始
+    projects = discover_projects()
+    knowledge = discover_knowledge()
+    # 插入结束
     return {
         "name": meta.get("name", "Your Name"),
         "bio": meta.get("bio", "Your bio..."),
@@ -175,7 +216,12 @@ def load_home() -> dict[str, Any]:
         #     for u in (meta.get("updates") or [])
         # ],
         # 原代码结束
-        "updates": discover_projects(),
+        # 原代码开始
+        # "updates": discover_projects(),
+        # 原代码结束
+        "projects": projects,
+        "knowledge": knowledge,
+        "updates": sorted(projects + knowledge, key=lambda u: u.get("date", ""), reverse=True),
         # 插入结束
     }
 
@@ -208,6 +254,20 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
             if not folder.is_dir():
                 continue
             dst = OUTPUT_DIR / "projects" / folder.name
+            dst.mkdir(parents=True, exist_ok=True)
+            for f in folder.iterdir():
+                if f.name == "index.md" or not f.is_file():
+                    continue
+                shutil.copy2(f, dst / f.name)
+    # 插入结束
+
+    # 插入开始：知识子目录配图 → dist/knowledge/<slug>/
+    knowledge_dir = CONTENT_DIR / "knowledge"
+    if knowledge_dir.exists():
+        for folder in knowledge_dir.iterdir():
+            if not folder.is_dir():
+                continue
+            dst = OUTPUT_DIR / "knowledge" / folder.name
             dst.mkdir(parents=True, exist_ok=True)
             for f in folder.iterdir():
                 if f.name == "index.md" or not f.is_file():
@@ -251,10 +311,20 @@ def build() -> int:
 
     # 插入开始
     update_template = env.get_template("update.html")
+    # 原代码开始
+    # for u in home.get("updates") or []:
+    #     if not u.get("slug"):
+    #         continue
+    #     out_dir = OUTPUT_DIR / "projects" / u["slug"]
+    #     out_dir.mkdir(parents=True, exist_ok=True)
+    #     (out_dir / "index.html").write_text(
+    #         update_template.render(home=home, pages=pages, update=u), encoding="utf-8"
+    #     )
+    # 原代码结束
     for u in home.get("updates") or []:
         if not u.get("slug"):
             continue
-        out_dir = OUTPUT_DIR / "projects" / u["slug"]
+        out_dir = OUTPUT_DIR / (u.get("kind") or "projects") / u["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(
             update_template.render(home=home, pages=pages, update=u), encoding="utf-8"

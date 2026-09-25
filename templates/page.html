@@ -36,8 +36,18 @@
       {% endfor %}
       原代码结束 #}
       {# 插入开始 #}
+      {# 原代码开始
       {% if page.id == 'projects' and home.updates %}
       {% set cards = home.updates %}
+      {% set text_key = 'excerpt' %}
+      {% include 'cards.html' %}
+      原代码结束 #}
+      {% if page.id == 'projects' and home.projects %}
+      {% set cards = home.projects %}
+      {% set text_key = 'excerpt' %}
+      {% include 'cards.html' %}
+      {% elif page.id == 'knowledge' and home.knowledge %}
+      {% set cards = home.knowledge %}
       {% set text_key = 'excerpt' %}
       {% include 'cards.html' %}
       {% else %}

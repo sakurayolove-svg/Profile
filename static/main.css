@@ -335,6 +335,7 @@ img {
 .update-entry { display: flex; flex-direction: column; gap: 0.6em; }
 .update-rule { width: 100%; border: 0; border-top: 1px solid #e5e7eb; margin: 0.4em 0 0; }
 .update-action { margin: 0; font-size: 0.9em; color: #7a8288; }
+.update-card--text .update-card-body { padding-left: 1em; }
 /* 插入结束 */
 
 /* 插入开始 */

@@ -3,12 +3,20 @@
   {# 插入开始 #}
   {% if show_action %}<div class="update-entry"><hr class="update-rule"><p class="update-action">{{ u.action or '完成项目' }}</p>{% endif %}
   {# 插入结束 #}
+  {# 原代码开始
   <a class="update-card" href="{{ base }}projects/{{ u.slug }}/">
+  原代码结束 #}
+  {# 插入开始 #}
+  <a class="update-card{% if not u.image %} update-card--text{% endif %}" href="{{ base }}{{ u.kind or 'projects' }}/{{ u.slug }}/">
+  {# 插入结束 #}
     {# 原代码开始
     <img src="{{ base }}{{ u.image }}" alt="{{ u.title }}">
     原代码结束 #}
-    {# 插入开始 #}
+    {# 原代码开始
     <img src="{{ base }}projects/{{ u.slug }}/{{ u.image }}" alt="{{ u.title }}">
+    原代码结束 #}
+    {# 插入开始 #}
+    {% if u.image %}<img src="{{ base }}{{ u.kind or 'projects' }}/{{ u.slug }}/{{ u.image }}" alt="{{ u.title }}">{% endif %}
     {# 插入结束 #}
     <div class="update-card-body">
       <time>{{ u.date }}</time>
