@@ -1,27 +1,25 @@
 ---
 date: 2023年02月
 title: ROS无人车
-image: ros-car.png
-content: 独立完成 ROS 无人车建图与路径规划
+image: ros-framework02.png
+content: 利用学校闲置车模，以树莓派为主控，用ROS实现无人车的二维建图、SLAM导航功能
 tags: [ROS, SLAM, C]
 ---
 
 ## 项目内容
-在学校控制实验室场地，以树莓派为主控，用 ROS 完成无人车二维建图与 SLAM 导航。
 
-![无人车整车](ros-car.png)
+利用学校闲置车模，以树莓派为主控，用ROS实现无人车的二维建图、SLAM导航功能。
 
-![车模与电源线](ros-chassis.jpg)
+![无人车学习路线](ros-framework01.png)
 
 ## 负责工作
-项目由个人完成。程序编写以 C 语言为主，选用激光雷达、IMU 等外设实现二维建图和路径规划控制。
 
-![IMU 与激光雷达接头](ros-imu-lidar.jpg)
+项目的各部分均由我个人完成
 
-完成二维栅格建图。
+学习ros系统的程序编写与应用（C语言），学习SLAM基本原理；
 
-![栅格地图](ros-grid-map.png)
+使用激光雷达、IMU等外设，实现二维建图、路径规划功能；
 
-先在 Gazebo 中做程序仿真和路径规划调试，再进行实物调试。
+利用虚拟机gazebo软件，进行程序仿真；利用学校闲置车模，进行实物测试。
 
-![导航器结构](ros-navigator.png)
+![无人车框架](ros-framework02.png)

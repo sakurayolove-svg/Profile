@@ -321,8 +321,11 @@ img {
 .update-card img { width: 100%; height: 140px; object-fit: cover; display: block; background: #224b8d; }
 原代码结束 */
 .update-grid { display: grid; grid-template-columns: 1fr; gap: 1em; }
-.update-card { display: flex; border: 1px solid #f2f3f3; color: inherit; text-decoration: none; }
+.update-card { display: flex; border: 1px solid #f2f3f3; color: inherit; text-decoration: none; background: #fff; }
+/* 原代码开始
 .update-card img { width: 200px; height: 140px; object-fit: cover; flex-shrink: 0; display: block; background: #224b8d; }
+原代码结束 */
+.update-card img { width: 200px; height: 140px; object-fit: cover; flex-shrink: 0; display: block; background: #fff; }
 .update-card-body { padding: 0.75em 1em; }
 .update-card time { display: block; font-size: 0.85em; color: #7a8288; }
 .update-card strong { display: block; margin: 0.25em 0; }
