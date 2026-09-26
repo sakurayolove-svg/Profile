@@ -21,7 +21,12 @@
         {% if home.location %}<li>📍 {{ home.location }}</li>{% endif %}
         {% if home.email %}<li>✉️ {{ home.email }}</li>{% endif %}
         {% for s in home.socials %}
+        {# 原代码开始
         <li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">🔗 {{ s.name }}</a></li>
+        原代码结束 #}
+        {# 插入开始 #}
+        <li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">{% if s.icon %}<img src="{{ base }}{{ s.icon }}" alt=""> {% endif %}{{ s.name }}</a></li>
+        {# 插入结束 #}
         {% endfor %}
       </ul>
     </div>
@@ -33,6 +38,21 @@
     <section class="page__content">
       <h2 id="about-me">{{ home.aboutTitle or 'About Me' }}</h2>
       {{ home.about | safe }}
+
+      {# 插入开始 #}
+      {% if home.home_ai %}
+      <h2>AI</h2>
+      {% set cards = home.home_ai %}
+      {% set text_key = 'excerpt' %}
+      {% include 'cards.html' %}
+      {% endif %}
+      {% if home.home_ee %}
+      <h2>EE</h2>
+      {% set cards = home.home_ee %}
+      {% set text_key = 'excerpt' %}
+      {% include 'cards.html' %}
+      {% endif %}
+      {# 插入结束 #}
 
       <h2>动态</h2>
       {# 原代码开始

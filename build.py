@@ -263,12 +263,21 @@ def load_home() -> dict[str, Any]:
             "aboutTitle": "About Me",
             # 插入开始
             "updates": [],
+            # 插入开始
+            "home_ai": [],
+            "home_ee": [],
+            # 插入结束
             # 插入结束
         }
     meta, _ = load_markdown(md_file)
     # 插入开始
     projects = discover_projects()
     knowledge = discover_knowledge()
+    # 插入开始
+    by_slug = {p["slug"]: p for p in projects}
+    home_ai = [by_slug[s] for s in ("travel-agent", "image-registration", "vegetable-pricing") if s in by_slug]
+    home_ee = [by_slug[s] for s in ("ros-car", "rogowski-coil", "power-supply") if s in by_slug]
+    # 插入结束
     # 插入结束
     return {
         "name": meta.get("name", "Your Name"),
@@ -296,6 +305,10 @@ def load_home() -> dict[str, Any]:
         "projects": projects,
         "knowledge": knowledge,
         "updates": sorted(projects + knowledge, key=lambda u: u.get("date", ""), reverse=True),
+        # 插入开始
+        "home_ai": home_ai,
+        "home_ee": home_ee,
+        # 插入结束
         # 插入结束
     }
 

@@ -200,6 +200,15 @@ img {
   color: #224b8d;
 }
 
+/* 插入开始 */
+.author__urls a img {
+  width: 1.1em;
+  height: 1.1em;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+/* 插入结束 */
+
 /* Main content */
 .page {
   flex: 1;
