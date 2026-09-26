@@ -11,7 +11,12 @@
       <p><a href="{{ page_url('projects') }}">← 项目</a></p>
       原代码结束 #}
       {# 插入开始 #}
+      {# 原代码开始
       <p><a href="{{ page_url(update.kind or 'projects') }}">← {{ '知识' if update.kind == 'knowledge' else '项目' }}</a></p>
+      原代码结束 #}
+      {# 插入开始 #}
+      <p><a href="{{ page_url(update.kind or 'projects') }}">← {{ '知识' if update.kind == 'knowledge' else ('生活' if update.kind == 'life' else '项目') }}</a></p>
+      {# 插入结束 #}
       {# 插入结束 #}
       <h1>{{ update.title }}</h1>
       <p style="color:#7a8288;">{{ update.date }}</p>

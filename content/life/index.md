@@ -5,5 +5,3 @@ icon: Coffee
 order: 2
 items: []
 ---
-
-生活记录页面。

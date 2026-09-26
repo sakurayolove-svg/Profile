@@ -216,6 +216,41 @@ def discover_knowledge() -> list[dict[str, Any]]:
 # 插入结束
 
 
+# 插入开始
+def discover_life() -> list[dict[str, Any]]:
+    """从 content/life/<slug>/index.md 加载生活图集。"""
+    life_dir = CONTENT_DIR / "life"
+    updates: list[dict[str, Any]] = []
+    if not life_dir.exists():
+        return updates
+    for folder in life_dir.iterdir():
+        if not folder.is_dir():
+            continue
+        md_file = folder / "index.md"
+        if not md_file.exists():
+            continue
+        meta, body = load_markdown(md_file)
+        raw_body = body or meta.get("content", "") or ""
+        body_html, toc = render_md(raw_body)
+        updates.append({
+            "slug": folder.name,
+            "date": meta.get("date", "") or "",
+            "title": meta.get("title", folder.name),
+            "image": meta.get("image", "") or "",
+            "content": meta.get("content", "") or "",
+            "tags": meta.get("tags") or [],
+            "body": raw_body,
+            "body_html": body_html,
+            "toc": toc,
+            "excerpt": card_blurb(meta.get("content", ""), raw_body),
+            "action": meta.get("action") or "发布生活日志",
+            "kind": "life",
+        })
+    updates.sort(key=lambda u: u.get("title", ""))
+    return updates
+# 插入结束
+
+
 def clip(text: str, n: int = 48) -> str:
     # 原代码开始
     # t = (text or "").strip()
@@ -266,6 +301,9 @@ def load_home() -> dict[str, Any]:
             # 插入开始
             "home_ai": [],
             "home_ee": [],
+            # 插入开始
+            "life": [],
+            # 插入结束
             # 插入结束
             # 插入结束
         }
@@ -273,6 +311,9 @@ def load_home() -> dict[str, Any]:
     # 插入开始
     projects = discover_projects()
     knowledge = discover_knowledge()
+    # 插入开始
+    life = discover_life()
+    # 插入结束
     # 插入开始
     by_slug = {p["slug"]: p for p in projects}
     home_ai = [by_slug[s] for s in ("travel-agent", "image-registration", "vegetable-pricing") if s in by_slug]
@@ -304,7 +345,15 @@ def load_home() -> dict[str, Any]:
         # 原代码结束
         "projects": projects,
         "knowledge": knowledge,
-        "updates": sorted(projects + knowledge, key=lambda u: u.get("date", ""), reverse=True),
+        # 原代码开始
+        # "updates": sorted(projects + knowledge, key=lambda u: u.get("date", ""), reverse=True),
+        # 原代码结束
+        # 插入开始
+        "updates": sorted(projects + knowledge + life, key=lambda u: u.get("date", ""), reverse=True),
+        # 插入结束
+        # 插入开始
+        "life": life,
+        # 插入结束
         # 插入开始
         "home_ai": home_ai,
         "home_ee": home_ee,
@@ -372,6 +421,20 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
                 # 插入结束
     # 插入结束
 
+    # 插入开始：生活子目录配图 → dist/life/<slug>/
+    life_dir = CONTENT_DIR / "life"
+    if life_dir.exists():
+        for folder in life_dir.iterdir():
+            if not folder.is_dir():
+                continue
+            dst = OUTPUT_DIR / "life" / folder.name
+            dst.mkdir(parents=True, exist_ok=True)
+            for f in folder.iterdir():
+                if f.name == "index.md" or not f.is_file():
+                    continue
+                shutil.copy2(f, dst / f.name)
+    # 插入结束
+
 
 def build() -> int:
     parser = argparse.ArgumentParser()
@@ -426,6 +489,16 @@ def build() -> int:
         (out_dir / "index.html").write_text(
             update_template.render(home=home, pages=pages, update=u), encoding="utf-8"
         )
+    # 插入开始
+    for u in home.get("life") or []:
+        if not u.get("slug"):
+            continue
+        out_dir = OUTPUT_DIR / "life" / u["slug"]
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "index.html").write_text(
+            update_template.render(home=home, pages=pages, update=u), encoding="utf-8"
+        )
+    # 插入结束
     # 插入结束
 
     # Build home

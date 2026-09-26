@@ -50,6 +50,12 @@
       {% set cards = home.knowledge %}
       {% set text_key = 'excerpt' %}
       {% include 'cards.html' %}
+      {# 插入开始 #}
+      {% elif page.id == 'life' and home.life %}
+      {% set cards = home.life %}
+      {% set text_key = 'excerpt' %}
+      {% include 'cards.html' %}
+      {# 插入结束 #}
       {% else %}
       {% for item in page.entries %}
       <div class="paper-box">
