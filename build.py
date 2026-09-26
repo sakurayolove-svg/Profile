@@ -38,7 +38,20 @@ def load_markdown(path: Path) -> tuple[dict[str, Any], str]:
     else:
         rest = parts[1] if len(parts) > 1 else ""
         lines = rest.splitlines()
-        cut = next((i for i, ln in enumerate(lines) if ln.startswith("## ") and not ln.startswith("## date:")), len(lines))
+        # 原代码开始
+        # cut = next((i for i, ln in enumerate(lines) if ln.startswith("## ") and not ln.startswith("## date:")), len(lines))
+        # 原代码结束
+        # 插入开始
+        cut = next(
+            (
+                i
+                for i, ln in enumerate(lines)
+                if ln.startswith("![")
+                or (ln.startswith("## ") and not ln.startswith("## date:"))
+            ),
+            len(lines),
+        )
+        # 插入结束
         frontmatter = "\n".join(lines[:cut])
         body = "\n".join(lines[cut:])
     fm = "\n".join(
@@ -270,9 +283,19 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
             dst = OUTPUT_DIR / "knowledge" / folder.name
             dst.mkdir(parents=True, exist_ok=True)
             for f in folder.iterdir():
-                if f.name == "index.md" or not f.is_file():
+                if f.name == "index.md":
                     continue
-                shutil.copy2(f, dst / f.name)
+                # 原代码开始
+                # if f.name == "index.md" or not f.is_file():
+                #     continue
+                # shutil.copy2(f, dst / f.name)
+                # 原代码结束
+                # 插入开始
+                if f.is_file():
+                    shutil.copy2(f, dst / f.name)
+                elif f.is_dir() and f.name == "index.assets":
+                    shutil.copytree(f, dst / f.name, dirs_exist_ok=True)
+                # 插入结束
     # 插入结束
 
 

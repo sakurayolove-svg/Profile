@@ -5,3 +5,4 @@
 - 项目正文与配图放在 `content/projects/<slug>/`（`index.md` + 图片）；首页只保留个人资料，由 `build.py` 扫描子目录生成 `projects/<slug>/` 详情页。
 - `Tempo/`：临时脚本（例如按清单从 pptx / 文件夹拷图）。每条路径格式不同，不要写进 `build.py`。
 - `refence/`、`Reference/`、`reference/`：本地参考（简历、幻灯片、证明材料替身），只在本机读取，不提交。
+- 知识页去掉某张图时只删 `index.md` 里的 `![](...)` 引用，不要删除 `content/` 里的图片文件。
