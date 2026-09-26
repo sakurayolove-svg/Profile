@@ -2,7 +2,7 @@
 date: 2023年01月
 title: 离散数学
 action: 发布知识
-content:
+content: 集合、命题、二元关系、函数、图、树
 ---
 
 ![](IMG_20221114_213003.jpg)

@@ -220,9 +220,16 @@ img {
   /* max-width: 240px; */
   /* 原代码结束 */
   /* 插入开始 */
+  /* 原代码开始 */
+  /* width: auto; */
+  /* min-width: 5.5em; */
+  /* max-width: 8em; */
+  /* 原代码结束 */
+  /* 插入开始 */
   width: auto;
   min-width: 5.5em;
-  max-width: 8em;
+  max-width: 12em;
+  /* 插入结束 */
   /* 插入结束 */
   font-size: 0.9em;
 }
@@ -291,10 +298,22 @@ img {
   margin: 0.35em 0;
 }
 
+/* 原代码开始 */
+/* .page-toc a {
+  color: #494e52;
+  text-decoration: none;
+} */
+/* 原代码结束 */
+/* 插入开始 */
 .page-toc a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: #494e52;
   text-decoration: none;
 }
+/* 插入结束 */
 
 .page-toc a:hover {
   color: #224b8d;

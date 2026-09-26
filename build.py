@@ -12,6 +12,8 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 # 插入开始
 from markdown.extensions.toc import slugify_unicode
+from html import escape
+import re
 # 插入结束
 
 # 插入开始
@@ -29,7 +31,13 @@ def render_md(text: str) -> tuple[str, str]:
 def card_blurb(content: str, body: str) -> str:
     """卡片简介：YAML content 非空就用它，否则走原来的正文截断。"""
     text = (content or "").strip()
-    return text if text else clip(body or "")
+    # 原代码开始
+    # return text if text else clip(body or "")
+    # 原代码结束
+    # 插入开始
+    # 只转义卡片简介里的 & 等符号，不动正文 / 目录 HTML
+    return escape(text) if text else escape(clip(body or ""))
+    # 插入结束
 # 插入结束
 
 
@@ -215,6 +223,9 @@ def clip(text: str, n: int = 48) -> str:
     # 原代码结束
     # 插入开始
     raw = text or ""
+    # 插入开始
+    raw = re.sub(r"<!--.*?-->", "", raw, flags=re.S)
+    # 插入结束
     if "## 项目内容" in raw:
         after = raw.split("## 项目内容", 1)[1]
         if "## 负责工作" in after:
