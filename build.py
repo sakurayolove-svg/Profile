@@ -10,6 +10,28 @@ from typing import Any
 import markdown
 import yaml
 from jinja2 import Environment, FileSystemLoader
+# 插入开始
+from markdown.extensions.toc import slugify_unicode
+# 插入结束
+
+# 插入开始
+def render_md(text: str) -> tuple[str, str]:
+    """把正文编成 HTML；有二级及以下小标题才返回目录。"""
+    md = markdown.Markdown(
+        extensions=["extra", "toc"],
+        extension_configs={"toc": {"slugify": slugify_unicode, "toc_depth": "2-6"}},
+    )
+    html = md.convert(text or "")
+    toc = md.toc if getattr(md, "toc_tokens", None) else ""
+    return html, toc
+
+
+def card_blurb(content: str, body: str) -> str:
+    """卡片简介：YAML content 非空就用它，否则走原来的正文截断。"""
+    text = (content or "").strip()
+    return text if text else clip(body or "")
+# 插入结束
+
 
 ROOT = Path(__file__).parent
 CONTENT_DIR = ROOT / "content"
@@ -105,6 +127,9 @@ def discover_projects() -> list[dict[str, Any]]:
             continue
         meta, body = load_markdown(md_file)
         raw_body = body or meta.get("content", "") or ""
+        # 插入开始
+        body_html, toc = render_md(raw_body)
+        # 插入结束
         updates.append({
             "slug": folder.name,
             "date": meta.get("date", ""),
@@ -113,8 +138,19 @@ def discover_projects() -> list[dict[str, Any]]:
             "content": meta.get("content", ""),
             "tags": meta.get("tags") or [],
             "body": raw_body,
-            "body_html": markdown.markdown(raw_body, extensions=["extra"]),
-            "excerpt": clip(raw_body or meta.get("content", "") or ""),
+            # 原代码开始
+            # "body_html": markdown.markdown(raw_body, extensions=["extra"]),
+            # 原代码结束
+            # 插入开始
+            "body_html": body_html,
+            "toc": toc,
+            # 插入结束
+            # 原代码开始
+            # "excerpt": clip(raw_body or meta.get("content", "") or ""),
+            # 原代码结束
+            # 插入开始
+            "excerpt": card_blurb(meta.get("content", ""), raw_body),
+            # 插入结束
             # 插入开始
             "action": meta.get("action") or "完成项目",
             "kind": "projects",
@@ -140,6 +176,9 @@ def discover_knowledge() -> list[dict[str, Any]]:
             continue
         meta, body = load_markdown(md_file)
         raw_body = body or meta.get("content", "") or ""
+        # 插入开始
+        body_html, toc = render_md(raw_body)
+        # 插入结束
         updates.append({
             "slug": folder.name,
             "date": meta.get("date", ""),
@@ -148,8 +187,19 @@ def discover_knowledge() -> list[dict[str, Any]]:
             "content": meta.get("content", "") or "",
             "tags": meta.get("tags") or [],
             "body": raw_body,
-            "body_html": markdown.markdown(raw_body, extensions=["extra"]),
-            "excerpt": clip(raw_body or meta.get("content", "") or ""),
+            # 原代码开始
+            # "body_html": markdown.markdown(raw_body, extensions=["extra"]),
+            # 原代码结束
+            # 插入开始
+            "body_html": body_html,
+            "toc": toc,
+            # 插入结束
+            # 原代码开始
+            # "excerpt": clip(raw_body or meta.get("content", "") or ""),
+            # 原代码结束
+            # 插入开始
+            "excerpt": card_blurb(meta.get("content", ""), raw_body),
+            # 插入结束
             "action": meta.get("action") or "发布知识",
             "kind": "knowledge",
         })

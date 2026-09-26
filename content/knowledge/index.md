@@ -5,5 +5,3 @@ icon: BookOpen
 order: 1
 items: []
 ---
-
-知识整理页面。
