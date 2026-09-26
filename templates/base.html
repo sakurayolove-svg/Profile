@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{ home.siteTitle }}{% endblock %}</title>
+  {# 插入开始 #}
+  {# 原代码开始
+  {% if home.avatar %}<link rel="icon" href="{{ base }}{{ home.avatar }}" type="image/jpeg">{% endif %}
+  原代码结束 #}
+  {# 插入开始 #}
+  <link rel="icon" href="{{ base }}favicon.svg" type="image/svg+xml">
+  {# 插入结束 #}
+  {# 插入结束 #}
   {# 原代码开始
   <link rel="stylesheet" href="{{ static('main.css') }}">
   原代码结束 #}

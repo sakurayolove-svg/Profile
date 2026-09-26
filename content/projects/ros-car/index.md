@@ -1,6 +1,6 @@
 ---
 date: 2023年02月
-title: ROS无人车
+title: 基于ROS无人车的建图导航研究
 image: ros-framework02.png
 content: 利用学校闲置车模，以树莓派为主控，用ROS实现无人车的二维建图、SLAM导航功能
 tags: [ROS, SLAM, 控制系统, C]

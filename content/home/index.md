@@ -15,10 +15,10 @@ siteTitle: 魔术师小站
 aboutTitle: 关于我
 socials:
   - name: GitHub
-    url: https://github.com/example
+    url: https://github.com/sakurayolove-svg
     icon: icons8-github-100.png
   - name: 知乎
-    url: https://zhihu.com/people/example
+    url: https://www.zhihu.com/people/qian-qiu-zhi-lin
     icon: 知乎.svg
 # 原代码开始
 # updates: 已迁至 content/projects/<slug>/index.md
