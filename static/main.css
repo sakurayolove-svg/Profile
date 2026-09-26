@@ -456,6 +456,23 @@ img {
 .update-card img { width: 200px; height: 140px; object-fit: cover; flex-shrink: 0; display: block; background: #224b8d; }
 原代码结束 */
 .update-card img { width: 200px; height: 140px; object-fit: cover; flex-shrink: 0; display: block; background: #fff; }
+/* 插入开始 */
+/* 原代码开始 */
+/* @media (max-width: 768px) {
+  .update-card img {
+    width: 100%;
+  }
+} */
+/* 原代码结束 */
+/* 插入开始 */
+@media (max-width: 768px) {
+  .update-card img {
+    width: 100%;
+    height: 280px;
+  }
+}
+/* 插入结束 */
+/* 插入结束 */
 .update-card-body { padding: 0.75em 1em; }
 .update-card time { display: block; font-size: 0.85em; color: #7a8288; }
 .update-card strong { display: block; margin: 0.25em 0; }
