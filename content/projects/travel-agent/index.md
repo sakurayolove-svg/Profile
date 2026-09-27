@@ -4,6 +4,7 @@ title: 旅游规划Agent
 image: mcp.png
 content: 基于 Python 构建 AI Agent 流水线，实现旅游地理信息感知、媒体内容生成与内容自动发布。
 tags: [MCP, Agent, Python]
+hidden: true
 ---
 
 ## 项目内容

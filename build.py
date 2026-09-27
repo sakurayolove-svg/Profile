@@ -134,6 +134,10 @@ def discover_projects() -> list[dict[str, Any]]:
         if not md_file.exists():
             continue
         meta, body = load_markdown(md_file)
+        # 插入开始
+        if meta.get("hidden"):
+            continue
+        # 插入结束
         raw_body = body or meta.get("content", "") or ""
         # 插入开始
         body_html, toc = render_md(raw_body)
