@@ -1,7 +1,7 @@
 <div class="update-grid">
   {% for u in cards %}
   {# 插入开始 #}
-  {% if show_action %}<div class="update-entry"><hr class="update-rule"><p class="update-action">{{ u.action or '完成项目' }}</p>{% endif %}
+  {% if show_action %}<div class="update-entry"><hr class="update-rule"><p class="update-action">{{ t(u.action_en, u.action or '完成项目') }}</p>{% endif %}
   {# 插入结束 #}
   {# 原代码开始
   <a class="update-card" href="{{ base }}projects/{{ u.slug }}/">
@@ -16,15 +16,36 @@
     <img src="{{ base }}projects/{{ u.slug }}/{{ u.image }}" alt="{{ u.title }}">
     原代码结束 #}
     {# 插入开始 #}
-    {% if u.image %}<img src="{{ base }}{{ u.kind or 'projects' }}/{{ u.slug }}/{{ u.image }}" alt="{{ u.title }}">{% endif %}
+    {% if u.image %}<img src="{{ base }}{{ u.kind or 'projects' }}/{{ u.slug }}/{{ u.image }}" alt="{{ u.title_en or u.title }}">{% endif %}
     {# 插入结束 #}
     <div class="update-card-body">
+      {# 原代码开始
       <time>{{ u.date }}</time>
       <strong>{{ u.title }}</strong>
+      原代码结束 #}
       {# 插入开始 #}
-      {% if u.tags %}<ul class="tag-list">{% for t in u.tags %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+      <time>{{ t(u.date_en, u.date) }}</time>
+      <strong>{{ t(u.title_en, u.title) }}</strong>
       {# 插入结束 #}
+      {# 插入开始 #}
+      {% if u.tags %}
+      <ul class="tag-list lang-zh">{% for tag in u.tags %}<li>{{ tag }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if u.tags_en %}
+      <ul class="tag-list lang-en">{% for tag in u.tags_en %}<li>{{ tag }}</li>{% endfor %}</ul>
+      {% elif u.tags %}
+      <ul class="tag-list lang-en">{% for tag in u.tags %}<li>{{ tag }}</li>{% endfor %}</ul>
+      {% endif %}
+      {# 插入结束 #}
+      {# 原代码开始
+      {% if u.tags %}<ul class="tag-list">{% for t in u.tags %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+      原代码结束 #}
+      {# 原代码开始
       <p>{{ u[text_key] }}</p>
+      原代码结束 #}
+      {# 插入开始 #}
+      <p>{{ t(u.excerpt_en if text_key == 'excerpt' else u[text_key], u[text_key]) }}</p>
+      {# 插入结束 #}
     </div>
   </a>
   {# 插入开始 #}

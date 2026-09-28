@@ -1,9 +1,22 @@
 <!doctype html>
+{# 原代码开始
 <html lang="zh-CN">
+原代码结束 #}
+{# 插入开始 #}
+<html lang="en" data-lang="en" data-title-en="{% block title_en %}{{ home.siteTitle_en or home.siteTitle }}{% endblock %}" data-title-zh="{% block title_zh %}{{ home.siteTitle }}{% endblock %}">
+{# 插入结束 #}
 <head>
   <meta charset="utf-8">
+  {# 插入开始 #}
+  <script>(function(){try{var l=localStorage.getItem("site-lang");if(l==="zh"){document.documentElement.setAttribute("data-lang","zh");document.documentElement.setAttribute("lang","zh-CN");}}catch(e){}})();</script>
+  {# 插入结束 #}
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {# 原代码开始
   <title>{% block title %}{{ home.siteTitle }}{% endblock %}</title>
+  原代码结束 #}
+  {# 插入开始 #}
+  <title>{% block title %}{{ home.siteTitle_en or home.siteTitle }}{% endblock %}</title>
+  {# 插入结束 #}
   {# 插入开始 #}
   {# 原代码开始
   {% if home.avatar %}<link rel="icon" href="{{ base }}{{ home.avatar }}" type="image/jpeg">{% endif %}
@@ -71,7 +84,11 @@
   <link rel="stylesheet" href="{{ static('main.css') }}?v=16">
   原代码结束 #}
   {# 插入开始 #}
+  {# 插入开始 #}
+  {# 原代码开始
   <link rel="stylesheet" href="{{ static('main.css') }}?v=17">
+  原代码结束 #}
+  <link rel="stylesheet" href="{{ static('main.css') }}?v=18">
   {# 插入结束 #}
   {# 插入结束 #}
   {# 插入结束 #}
@@ -91,14 +108,31 @@
         <nav class="greedy-nav">
           <ul class="visible-links">
             <li class="masthead__menu-item{% if active == 'home' %} masthead__menu-item--lg{% endif %}">
+              {# 原代码开始
               <a href="{{ page_url('home') }}">{{ home.siteTitle or '魔术师小站' }}</a>
+              原代码结束 #}
+              {# 插入开始 #}
+              <a href="{{ page_url('home') }}">{{ t(home.siteTitle_en, home.siteTitle or '魔术师小站') }}</a>
+              {# 插入结束 #}
             </li>
             {% for p in pages %}
             <li class="masthead__menu-item{% if active == p.id %} masthead__menu-item--lg{% endif %}">
+              {# 原代码开始
               <a href="{{ page_url(p.id) }}">{{ p.title }}</a>
+              原代码结束 #}
+              {# 插入开始 #}
+              <a href="{{ page_url(p.id) }}">{{ t(p.title_en, p.title) }}</a>
+              {# 插入结束 #}
             </li>
             {% endfor %}
           </ul>
+          {# 插入开始 #}
+          <a class="lang-switch" href="#" id="lang-switch">
+            <img src="{{ static('lang.svg') }}" alt="">
+            <span class="lang-en">EN</span>
+            <span class="lang-zh">ZH</span>
+          </a>
+          {# 插入结束 #}
         </nav>
       </div>
     </div>
@@ -107,5 +141,30 @@
   <div id="main" role="main">
     {% block content %}{% endblock %}
   </div>
+  {# 插入开始 #}
+  <script>
+  (function () {
+    var root = document.documentElement;
+    var key = "site-lang";
+    function apply(lang) {
+      var l = lang === "zh" ? "zh" : "en";
+      root.setAttribute("data-lang", l);
+      root.setAttribute("lang", l === "zh" ? "zh-CN" : "en");
+      try { localStorage.setItem(key, l); } catch (e) {}
+      var en = root.getAttribute("data-title-en");
+      var zh = root.getAttribute("data-title-zh");
+      if (en && zh) document.title = l === "zh" ? zh : en;
+    }
+    var saved = null;
+    try { saved = localStorage.getItem(key); } catch (e) {}
+    apply(saved === "zh" ? "zh" : "en");
+    var btn = document.getElementById("lang-switch");
+    if (btn) btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      apply(root.getAttribute("data-lang") === "zh" ? "en" : "zh");
+    });
+  })();
+  </script>
+  {# 插入结束 #}
 </body>
 </html>

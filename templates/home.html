@@ -14,18 +14,23 @@
     </div>
     <div class="author__content">
       <h3 class="author__name">{{ home.name or 'Your Name' }}</h3>
+      {# 原代码开始
       <p class="author__bio">{{ home.bio or 'Your bio...' }}</p>
+      原代码结束 #}
+      {# 插入开始 #}
+      <p class="author__bio">{{ t(home.bio_en, home.bio or 'Your bio...') }}</p>
+      {# 插入结束 #}
     </div>
     <div class="author__urls-wrapper">
       <ul class="author__urls social-icons">
-        {% if home.location %}<li>📍 {{ home.location }}</li>{% endif %}
+        {% if home.location %}<li>📍 {{ t(home.location_en, home.location) }}</li>{% endif %}
         {% if home.email %}<li>✉️ {{ home.email }}</li>{% endif %}
         {% for s in home.socials %}
         {# 原代码开始
         <li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">🔗 {{ s.name }}</a></li>
         原代码结束 #}
         {# 插入开始 #}
-        <li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">{% if s.icon %}<img src="{{ base }}{{ s.icon }}" alt=""> {% endif %}{{ s.name }}</a></li>
+        <li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">{% if s.icon %}<img src="{{ base }}{{ s.icon }}" alt=""> {% endif %}{{ t(s.name_en, s.name) }}</a></li>
         {# 插入结束 #}
         {% endfor %}
       </ul>
@@ -36,8 +41,15 @@
 <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
   <div class="page__inner-wrap">
     <section class="page__content">
+      {# 原代码开始
       <h2 id="about-me">{{ home.aboutTitle or 'About Me' }}</h2>
       {{ home.about | safe }}
+      原代码结束 #}
+      {# 插入开始 #}
+      <h2 id="about-me">{{ t(home.aboutTitle_en, home.aboutTitle or 'About Me') }}</h2>
+      <div class="lang-en">{{ home.about_en | safe }}</div>
+      <div class="lang-zh">{{ home.about | safe }}</div>
+      {# 插入结束 #}
 
       {# 插入开始 #}
       {% if home.home_ai %}
@@ -54,7 +66,12 @@
       {% endif %}
       {# 插入结束 #}
 
+      {# 原代码开始
       <h2>动态</h2>
+      原代码结束 #}
+      {# 插入开始 #}
+      <h2>{{ t(home.ui.updates.en if home.ui.updates else 'Updates', home.ui.updates.zh if home.ui.updates else '动态') }}</h2>
+      {# 插入结束 #}
       {# 原代码开始
       <p style="color:#7a8288;">编辑 content/home/index.md 添加动态内容。</p>
       原代码结束 #}
@@ -95,7 +112,7 @@
       {% include 'cards.html' %}
       {# 插入结束 #}
       {% else %}
-      <p style="color:#7a8288;">暂无动态。</p>
+      <p style="color:#7a8288;">{{ t(home.ui.no_updates.en if home.ui.no_updates else 'No updates yet.', home.ui.no_updates.zh if home.ui.no_updates else '暂无动态。') }}</p>
       {% endif %}
       {# 插入结束 #}
     </section>

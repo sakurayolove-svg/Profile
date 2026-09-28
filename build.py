@@ -14,6 +14,9 @@ from jinja2 import Environment, FileSystemLoader
 from markdown.extensions.toc import slugify_unicode
 from html import escape
 import re
+# 插入开始
+from markupsafe import Markup
+# 插入结束
 # 插入结束
 
 # 插入开始
@@ -104,9 +107,17 @@ def discover_pages() -> list[dict[str, Any]]:
         page_id = folder.name
         if page_id == "home":
             continue
+        # 插入开始
+        en_meta, en_body = load_en(folder, meta, body)
+        # 插入结束
         pages.append({
             "id": page_id,
             "title": meta.get("title", page_id),
+            # 插入开始
+            "title_en": en_meta.get("title", meta.get("title", page_id)),
+            "description_en": en_meta.get("description", meta.get("description", "")),
+            "body_html_en": markdown.markdown(en_body, extensions=["extra", "toc"]),
+            # 插入结束
             "description": meta.get("description", ""),
             "icon": meta.get("icon", "FolderGit"),
             "order": meta.get("order", 999),
@@ -167,6 +178,11 @@ def discover_projects() -> list[dict[str, Any]]:
             "action": meta.get("action") or "完成项目",
             "kind": "projects",
             # 插入结束
+            # 插入开始
+            "body_html_zh": body_html,
+            "toc_zh": toc,
+            **locale_extra(folder, meta, raw_body, "完成项目"),
+            # 插入结束
         })
     updates.sort(key=lambda u: u.get("date", ""), reverse=True)
     return updates
@@ -187,7 +203,12 @@ def discover_knowledge() -> list[dict[str, Any]]:
         if not md_file.exists():
             continue
         meta, body = load_markdown(md_file)
-        raw_body = body or meta.get("content", "") or ""
+        # 原代码开始
+        # raw_body = body or meta.get("content", "") or ""
+        # 原代码结束
+        # 插入开始
+        raw_body = body or ""
+        # 插入结束
         # 插入开始
         body_html, toc = render_md(raw_body)
         # 插入结束
@@ -214,6 +235,11 @@ def discover_knowledge() -> list[dict[str, Any]]:
             # 插入结束
             "action": meta.get("action") or "发布知识",
             "kind": "knowledge",
+            # 插入开始
+            "body_html_zh": body_html,
+            "toc_zh": toc,
+            **locale_extra(folder, meta, raw_body, "发布知识"),
+            # 插入结束
         })
     updates.sort(key=lambda u: u.get("date", ""), reverse=True)
     return updates
@@ -249,6 +275,11 @@ def discover_life() -> list[dict[str, Any]]:
             "excerpt": card_blurb(meta.get("content", ""), raw_body),
             "action": meta.get("action") or "发布生活日志",
             "kind": "life",
+            # 插入开始
+            "body_html_zh": body_html,
+            "toc_zh": toc,
+            **locale_extra(folder, meta, raw_body, "发布生活日志"),
+            # 插入结束
         })
     updates.sort(key=lambda u: u.get("title", ""))
     return updates
@@ -265,10 +296,27 @@ def clip(text: str, n: int = 48) -> str:
     # 插入开始
     raw = re.sub(r"<!--.*?-->", "", raw, flags=re.S)
     # 插入结束
-    if "## 项目内容" in raw:
-        after = raw.split("## 项目内容", 1)[1]
-        if "## 负责工作" in after:
-            after = after.split("## 负责工作", 1)[0]
+    # 原代码开始
+    # if "## 项目内容" in raw:
+    #     after = raw.split("## 项目内容", 1)[1]
+    #     if "## 负责工作" in after:
+    #         after = after.split("## 负责工作", 1)[0]
+    #     elif "## " in after:
+    #         after = after.split("## ", 1)[0]
+    #     para = next(
+    #         (ln.strip() for ln in after.replace("![", "\n![").splitlines()
+    #          if ln.strip() and not ln.strip().startswith(("!", "#"))),
+    #         "",
+    #     )
+    #     raw = para or raw
+    # 原代码结束
+    # 插入开始
+    for start, end in (("## 项目内容", "## 负责工作"), ("## Project", "## Responsibilities")):
+        if start not in raw:
+            continue
+        after = raw.split(start, 1)[1]
+        if end in after:
+            after = after.split(end, 1)[0]
         elif "## " in after:
             after = after.split("## ", 1)[0]
         para = next(
@@ -277,12 +325,89 @@ def clip(text: str, n: int = 48) -> str:
             "",
         )
         raw = para or raw
+        break
+    # 插入结束
     # 插入开始
     raw = " ".join(tok for tok in (raw or "").split() if not tok.startswith("!["))
     # 插入结束
     t = " ".join(raw.split())
     return t if len(t) <= n else t[:n].rstrip() + "…"
     # 插入结束
+
+
+# 插入开始
+ACTION_EN = {
+    "完成项目": "Completed a project",
+    # 原代码开始
+    # "发布知识": "Published notes",
+    # 原代码结束
+    "发布知识": "Published knowledge",
+    # 原代码开始
+    # "发布生活日志": "Published a journal",
+    # 原代码结束
+    "发布生活日志": "Published a life log",
+}
+
+
+def date_en(s: str) -> str:
+    """把 2025年07月 写成 Jul 2025。"""
+    m = re.search(r"(\d{4})年(\d{1,2})月", s or "")
+    if not m:
+        return s or ""
+    months = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    month = int(m.group(2))
+    if 1 <= month <= 12:
+        return f"{months[month - 1]} {m.group(1)}"
+    return s or ""
+
+
+def load_en(folder: Path, zh_meta: dict[str, Any], zh_body: str) -> tuple[dict[str, Any], str]:
+    """有 index.en.md 就读英文，否则回退中文。"""
+    en_file = folder / "index.en.md"
+    if en_file.exists():
+        return load_markdown(en_file)
+    return zh_meta, zh_body
+
+
+def load_i18n() -> dict[str, Any]:
+    path = CONTENT_DIR / "i18n.yaml"
+    if not path.exists():
+        return {}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
+def t(en: Any, zh: Any) -> Markup:
+    """同一处输出英/中两套，由 CSS 按当前语言显示。"""
+    return Markup(
+        f'<span class="lang-en">{escape(str(en or ""))}</span>'
+        f'<span class="lang-zh">{escape(str(zh or ""))}</span>'
+    )
+
+
+def locale_extra(
+    folder: Path, meta: dict[str, Any], raw_body: str, default_action: str
+) -> dict[str, Any]:
+    """英文标题、摘要、正文、目录、标签、动态动词。"""
+    en_meta, en_body = load_en(folder, meta, raw_body)
+    # 原代码开始
+    # en_raw = en_body or en_meta.get("content", "") or raw_body
+    # 原代码结束
+    # 插入开始
+    # YAML content 只给卡片，不进子页正文
+    en_raw = en_body.strip() if (en_body or "").strip() else raw_body
+    # 插入结束
+    en_html, en_toc = render_md(en_raw)
+    action = meta.get("action") or default_action
+    return {
+        "date_en": date_en(str(meta.get("date", "") or "")),
+        "title_en": en_meta.get("title", meta.get("title", folder.name)),
+        "tags_en": en_meta.get("tags") or meta.get("tags") or [],
+        "body_html_en": en_html,
+        "toc_en": en_toc,
+        "excerpt_en": card_blurb(en_meta.get("content", ""), en_raw),
+        "action_en": en_meta.get("action") or ACTION_EN.get(action, action),
+    }
+# 插入结束
 
 
 def load_home() -> dict[str, Any]:
@@ -301,6 +426,14 @@ def load_home() -> dict[str, Any]:
             "siteTitle": "魔术师小站",
             "aboutTitle": "About Me",
             # 插入开始
+            "siteTitle_en": "Magician Station",
+            "aboutTitle_en": "About Me",
+            "bio_en": "Your bio...",
+            "about_en": "Write something about yourself...",
+            "location_en": "",
+            "ui": {},
+            # 插入结束
+            # 插入开始
             "updates": [],
             # 插入开始
             "home_ai": [],
@@ -312,6 +445,14 @@ def load_home() -> dict[str, Any]:
             # 插入结束
         }
     meta, _ = load_markdown(md_file)
+    # 插入开始
+    en_meta, _ = load_en(home_dir, meta, "")
+    socials = []
+    en_by_url = {s.get("url"): s for s in (en_meta.get("socials") or [])}
+    for s in meta.get("socials") or []:
+        es = en_by_url.get(s.get("url"), {})
+        socials.append({**s, "name_en": es.get("name", s.get("name"))})
+    # 插入结束
     # 插入开始
     projects = discover_projects()
     knowledge = discover_knowledge()
@@ -327,11 +468,22 @@ def load_home() -> dict[str, Any]:
     return {
         "name": meta.get("name", "Your Name"),
         "bio": meta.get("bio", "Your bio..."),
+        # 插入开始
+        "bio_en": en_meta.get("bio", meta.get("bio", "Your bio...")),
+        "about_en": markdown.markdown(
+            en_meta.get("about", meta.get("about", "Write something about yourself...")),
+            extensions=["extra"],
+        ),
+        "location_en": en_meta.get("location", meta.get("location", "")),
+        "siteTitle_en": en_meta.get("siteTitle", meta.get("siteTitle", "Magician Station")),
+        "aboutTitle_en": en_meta.get("aboutTitle", meta.get("aboutTitle", "About Me")),
+        "ui": load_i18n(),
+        # 插入结束
         "about": md.convert(meta.get("about", "Write something about yourself...")),
         "email": meta.get("email", ""),
         "location": meta.get("location", ""),
         "avatar": meta.get("avatar", ""),
-        "socials": meta.get("socials", []),
+        "socials": socials,
         "siteTitle": meta.get("siteTitle", "魔术师小站"),
         "aboutTitle": meta.get("aboutTitle", "About Me"),
         # 插入开始
@@ -372,7 +524,7 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
         dst = OUTPUT_DIR / page["id"]
         dst.mkdir(parents=True, exist_ok=True)
         for f in src.iterdir():
-            if f.name == "index.md":
+            if f.name in ("index.md", "index.en.md"):
                 continue
             if f.is_file():
                 shutil.copy2(f, dst / f.name)
@@ -382,7 +534,7 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
     if home_dir.exists():
         dst = OUTPUT_DIR
         for f in home_dir.iterdir():
-            if f.name == "index.md":
+            if f.name in ("index.md", "index.en.md"):
                 continue
             if f.is_file():
                 shutil.copy2(f, dst / f.name)
@@ -396,8 +548,14 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
             dst = OUTPUT_DIR / "projects" / folder.name
             dst.mkdir(parents=True, exist_ok=True)
             for f in folder.iterdir():
-                if f.name == "index.md" or not f.is_file():
+                # 原代码开始
+                # if f.name == "index.md" or not f.is_file():
+                #     continue
+                # 原代码结束
+                # 插入开始
+                if f.name in ("index.md", "index.en.md") or not f.is_file():
                     continue
+                # 插入结束
                 shutil.copy2(f, dst / f.name)
     # 插入结束
 
@@ -410,7 +568,7 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
             dst = OUTPUT_DIR / "knowledge" / folder.name
             dst.mkdir(parents=True, exist_ok=True)
             for f in folder.iterdir():
-                if f.name == "index.md":
+                if f.name in ("index.md", "index.en.md"):
                     continue
                 # 原代码开始
                 # if f.name == "index.md" or not f.is_file():
@@ -434,8 +592,14 @@ def copy_assets(pages: list[dict[str, Any]]) -> None:
             dst = OUTPUT_DIR / "life" / folder.name
             dst.mkdir(parents=True, exist_ok=True)
             for f in folder.iterdir():
-                if f.name == "index.md" or not f.is_file():
+                # 原代码开始
+                # if f.name == "index.md" or not f.is_file():
+                #     continue
+                # 原代码结束
+                # 插入开始
+                if f.name in ("index.md", "index.en.md") or not f.is_file():
                     continue
+                # 插入结束
                 shutil.copy2(f, dst / f.name)
     # 插入结束
 
@@ -456,6 +620,7 @@ def build() -> int:
     env.globals.update({
         "base": args.base,
         "static": lambda p: f"{args.base}static/{p}",
+        "t": t,
         "page_url": lambda pid: f"{args.base}{pid}/" if pid != "home" else f"{args.base}",
     })
 

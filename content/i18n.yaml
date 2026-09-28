@@ -1,0 +1,45 @@
+siteTitle:
+  zh: 魔术师小站
+  en: Magician Station
+projects:
+  zh: 项目
+  en: Projects
+knowledge:
+  zh: 知识
+  en: Knowledge
+life:
+  zh: 生活
+  en: Life
+about:
+  zh: 关于我
+  en: About Me
+updates:
+  zh: 动态
+  en: Updates
+contents:
+  zh: 目录
+  en: Contents
+completed_project:
+  zh: 完成项目
+  en: Completed a project
+published_notes:
+  zh: 发布知识
+  en: Published knowledge
+published_journal:
+  zh: 发布生活日志
+  en: Published a life log
+location:
+  zh: 上海，中国
+  en: Shanghai, China
+zhihu:
+  zh: 知乎
+  en: Zhihu
+no_updates:
+  zh: 暂无动态
+  en: No updates yet.
+images:
+  zh: 图片
+  en: Images
+pdf:
+  zh: PDF
+  en: PDF

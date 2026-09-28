@@ -1,15 +1,31 @@
 {% extends "base.html" %}
 
+{# 原代码开始
 {% block title %}{{ page.title }} | {{ home.siteTitle }}{% endblock %}
+原代码结束 #}
+{# 插入开始 #}
+{% block title %}{{ page.title_en or page.title }} | {{ home.siteTitle_en or home.siteTitle }}{% endblock %}
+{% block title_en %}{{ page.title_en or page.title }} | {{ home.siteTitle_en or home.siteTitle }}{% endblock %}
+{% block title_zh %}{{ page.title }} | {{ home.siteTitle }}{% endblock %}
+{# 插入结束 #}
 
 {% block content %}
 <article class="page page--full" itemscope itemtype="http://schema.org/CreativeWork">
   <div class="page__inner-wrap">
     <section class="page__content">
+      {# 原代码开始
       <h1>{{ page.title }}</h1>
       {% if page.description %}<p style="color:#7a8288;">{{ page.description }}</p>{% endif %}
 
       {{ page.body_html | safe }}
+      原代码结束 #}
+      {# 插入开始 #}
+      <h1>{{ t(page.title_en, page.title) }}</h1>
+      {% if page.description %}<p style="color:#7a8288;">{{ t(page.description_en, page.description) }}</p>{% endif %}
+
+      <div class="lang-en">{{ (page.body_html_en or page.body_html) | safe }}</div>
+      <div class="lang-zh">{{ page.body_html | safe }}</div>
+      {# 插入结束 #}
 
       {# 原代码开始
       {% for item in page.entries %}
@@ -83,7 +99,12 @@
       {# 插入结束 #}
 
       {% if page.images %}
+      {# 原代码开始
       <h2>图片</h2>
+      原代码结束 #}
+      {# 插入开始 #}
+      <h2>{{ t(home.ui.images.en, home.ui.images.zh) }}</h2>
+      {# 插入结束 #}
       <div class="image-grid">
         {% for img in page.images %}
         <div class="image-item">
@@ -94,7 +115,12 @@
       {% endif %}
 
       {% if page.pdfs %}
+      {# 原代码开始
       <h2>PDF</h2>
+      原代码结束 #}
+      {# 插入开始 #}
+      <h2>{{ t(home.ui.pdf.en, home.ui.pdf.zh) }}</h2>
+      {# 插入结束 #}
       <ul>
         {% for pdf in page.pdfs %}
         <li><a href="{{ pdf }}" target="_blank">{{ pdf }}</a></li>

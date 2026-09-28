@@ -502,6 +502,24 @@ img {
 /* 插入结束 */
 
 /* 插入开始 */
+html[data-lang="en"] .lang-zh { display: none !important; }
+html[data-lang="zh"] .lang-en { display: none !important; }
+.lang-switch {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.35em 0.6em;
+  font-size: 0.85em;
+  font-weight: bold;
+  color: #494e52;
+  white-space: nowrap;
+}
+.lang-switch img { width: 1.25em; height: 1.25em; }
+.lang-switch:hover { color: #224b8d; text-decoration: none; }
+/* 插入结束 */
+
+/* 插入开始 */
 /* 原代码开始
 .page--full .page__content img {
   display: block;

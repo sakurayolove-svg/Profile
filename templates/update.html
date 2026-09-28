@@ -1,8 +1,15 @@
 {% extends "base.html" %}
+{# 原代码开始
 {% block title %}{{ update.title }} | {{ home.siteTitle }}{% endblock %}
+原代码结束 #}
+{# 插入开始 #}
+{% block title %}{{ update.title_en or update.title }} | {{ home.siteTitle_en or home.siteTitle }}{% endblock %}
+{% block title_en %}{{ update.title_en or update.title }} | {{ home.siteTitle_en or home.siteTitle }}{% endblock %}
+{% block title_zh %}{{ update.title }} | {{ home.siteTitle }}{% endblock %}
+{# 插入结束 #}
 {% block content %}
 {# 插入开始 #}
-{% if update.toc %}<nav class="page-toc sticky"><a class="page-toc__title" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></svg>目录</a>{{ update.toc | safe }}</nav>{% endif %}
+{% if update.toc_en or update.toc_zh or update.toc %}<nav class="page-toc sticky"><a class="page-toc__title" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></svg>{{ t(home.ui.contents.en, home.ui.contents.zh) }}</a><div class="lang-en">{{ (update.toc_en or update.toc) | safe }}</div><div class="lang-zh">{{ (update.toc_zh or update.toc) | safe }}</div></nav>{% endif %}
 {# 插入结束 #}
 <article class="page page--full">
   <div class="page__inner-wrap">
@@ -15,14 +22,24 @@
       <p><a href="{{ page_url(update.kind or 'projects') }}">← {{ '知识' if update.kind == 'knowledge' else '项目' }}</a></p>
       原代码结束 #}
       {# 插入开始 #}
-      <p><a href="{{ page_url(update.kind or 'projects') }}">← {{ '知识' if update.kind == 'knowledge' else ('生活' if update.kind == 'life' else '项目') }}</a></p>
+      <p><a href="{{ page_url(update.kind or 'projects') }}">← {{ t(home.ui.knowledge.en if update.kind == 'knowledge' else (home.ui.life.en if update.kind == 'life' else home.ui.projects.en), '知识' if update.kind == 'knowledge' else ('生活' if update.kind == 'life' else '项目')) }}</a></p>
       {# 插入结束 #}
       {# 插入结束 #}
-      <h1>{{ update.title }}</h1>
-      <p style="color:#7a8288;">{{ update.date }}</p>
+      <h1>{{ t(update.title_en, update.title) }}</h1>
+      <p style="color:#7a8288;">{{ t(update.date_en, update.date) }}</p>
       {# 插入开始 #}
-      {% if update.tags %}<ul class="tag-list">{% for t in update.tags %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+      {% if update.tags %}
+      <ul class="tag-list lang-zh">{% for tag in update.tags %}<li>{{ tag }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if update.tags_en %}
+      <ul class="tag-list lang-en">{% for tag in update.tags_en %}<li>{{ tag }}</li>{% endfor %}</ul>
+      {% elif update.tags %}
+      <ul class="tag-list lang-en">{% for tag in update.tags %}<li>{{ tag }}</li>{% endfor %}</ul>
+      {% endif %}
       {# 插入结束 #}
+      {# 原代码开始
+      {% if update.tags %}<ul class="tag-list">{% for t in update.tags %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+      原代码结束 #}
       {# 原代码开始
       {% if update.image %}<p><img src="{{ base }}{{ update.image }}" alt="{{ update.title }}"></p>{% endif %}
       原代码结束 #}
@@ -32,7 +49,13 @@
       {# 原代码开始
       <p>{{ update.body or update.content }}</p>
       原代码结束 #}
+      {# 原代码开始
       {{ (update.body_html or update.body or update.content) | safe }}
+      原代码结束 #}
+      {# 插入开始 #}
+      <div class="lang-en">{{ (update.body_html_en or update.body_html or update.body or update.content) | safe }}</div>
+      <div class="lang-zh">{{ (update.body_html_zh or update.body_html or update.body or update.content) | safe }}</div>
+      {# 插入结束 #}
     </section>
   </div>
 </article>
